@@ -180,54 +180,55 @@ public class Component implements Comparable{
       //add the nodes of the current node to the iterator
       //Edge [] e_array = (Edge [])node2edges.get(current);
       //for(int i = 0;i<e_array.length;i++){
-      for(Iterator neighborIt = graph.getNeighborList(current, Edge.Type.ANY).iterator();neighborIt.hasNext();){
+      for(Iterator neighborIt = graph.getNeighborList(current, Edge.Type.ANY).iterator();neighborIt.hasNext();)
+      {
 	//Node currentNeighbor = e_array[i].opposite(current);
 	//Node currentNeighbor = (e_array[i].getSource().equals(current) ? e_array[i].getTarget() : e_array[i].getSource());
-	Node currentNeighbor = (Node)neighborIt.next();
-	if(!contains.contains(currentNeighbor)){
-	  //this neighbor is not in the component, so it
-	  //must be in the neighborhood. Add it in and add in
-	  //its score
-	  neighborhood.add(currentNeighbor);
-	  sigs = (double [])exHash.get(currentNeighbor);
-	  for(int j = 0;j < zSums.length;j++){
-	    zSums[j] += sigs[j];
-	  }
-	}
+		Node currentNeighbor = (Node)neighborIt.next();
+		if(!contains.contains(currentNeighbor)){
+		  //this neighbor is not in the component, so it
+		  //must be in the neighborhood. Add it in and add in
+		  //its score
+		  neighborhood.add(currentNeighbor);
+		  sigs = (double [])exHash.get(currentNeighbor);
+		  for(int j = 0;j < zSums.length;j++){
+		    zSums[j] += sigs[j];
+		  }
+		}
       }
       it = nComponents.iterator();
-      while(it.hasNext()){
-	Component neighbor = (Component)it.next();
-	//this will have to be a slow update because the neighborhoods
-	//may be overlapping
-	//don't add in the score for the current node, because it
-	//is not in the neighborhood
-	Iterator neighborIt = neighbor.neighborhood.iterator();
-	while(neighborIt.hasNext()){
-	  Node nodeNeighbor = (Node)neighborIt.next();
-	  if(!neighborhood.add(nodeNeighbor)){
-	    //the neighborhood didn't change as a result of this
-	    //update, that means it must have been added before
-	    //this means that the score must have been counted
-	    //an additional time when I added all the z-scores
-	    //together, must decrement the z-scores to correct
-	    //for this
-	    sigs = (double [])exHash.get(nodeNeighbor);
-	    for(int j = 0;j < zSums.length;j++){
-	      zSums[j] -= sigs[j];
-	    }
-			
-	  }
-	}
+	  while(it.hasNext()){
+			Component neighbor = (Component)it.next();
+			//this will have to be a slow update because the neighborhoods
+			//may be overlapping
+			//don't add in the score for the current node, because it
+			//is not in the neighborhood
+			Iterator neighborIt = neighbor.neighborhood.iterator();
+			while(neighborIt.hasNext()){
+			  Node nodeNeighbor = (Node)neighborIt.next();
+			  if(!neighborhood.add(nodeNeighbor)){
+			    //the neighborhood didn't change as a result of this
+			    //update, that means it must have been added before
+			    //this means that the score must have been counted
+			    //an additional time when I added all the z-scores
+			    //together, must decrement the z-scores to correct
+			    //for this
+			    sigs = (double [])exHash.get(nodeNeighbor);
+			    for(int j = 0;j < zSums.length;j++){
+			      zSums[j] -= sigs[j];
+			    }
+					
+			  }
+			}
       }
 	    
       //remove the new node from neighborhood, if it was there
       //in the first place
       if(neighborhood.remove(current)){
-	sigs = (double [])exHash.get(current);
-	for(int j = 0;j < zSums.length;j++){
-	  zSums[j] -= sigs[j];
-	}
+		sigs = (double [])exHash.get(current);
+		for(int j = 0;j < zSums.length;j++){
+		  zSums[j] -= sigs[j];
+		}
       }
       //all the scoring has been done
 	    

@@ -1,6 +1,7 @@
 package csplugins.jActiveModulesHeadless;
 
 import java.io.*;
+import java.util.*;
 
 
 import org.apache.commons.cli.*;
@@ -58,6 +59,8 @@ public class MainActiveModules {
 		int dataSize = 0;
 		String readDelimiter;
 		FileWriter fw = null;
+		Collection<Node> removeNodes = new ArrayList<Node>();
+		long startTime = System.currentTimeMillis();
 		
 		try {
             parse(args);
@@ -115,14 +118,32 @@ public class MainActiveModules {
 			System.out.println("[WARNING] No data file defined. The algorithm can not proceed without any input data.");
 			return;
 		}
-		
-		for(Row nodeRow : inputNetwork.getNodeTable().getAllRows())
-		{
-			if(nodeRow.getDataSize() == 0)
+			
+		try{
+			File emptyFile = new File (outputDir,"emptyNodes.txt");
+			fw = new FileWriter(emptyFile);
+			for(Row nodeRow : inputNetwork.getNodeTable().getAllRows())
 			{
-				System.out.println("[ERROR] There is no input data for node " + nodeRow.getName());
-				return;
+				if(nodeRow.getDataSize() == 0)
+				{
+					fw.write(nodeRow.getName());
+					fw.flush();
+					removeNodes.add(inputNetwork.getNode(nodeRow.getName()));
+				}
+					
 			}
+			if(fw != null)
+				fw.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(!removeNodes.isEmpty())
+		{
+			inputNetwork.removeNodesKeepConnections(removeNodes);
+			//inputNetwork.removeNodes(removeNodes);
+			System.out.println("[WARNING] There are " + removeNodes.size() + " nodes removed from the network because there is no data for those networks");
 		}
 		
 		apfParams.setNetwork(inputNetwork);
@@ -204,6 +225,11 @@ public class MainActiveModules {
 				e.printStackTrace();
 			}
 		}
+		
+		long endTime   = System.currentTimeMillis();
+		long totalTime = endTime - startTime;
+		
+		System.out.println("Running time: " +totalTime/60000 +  " minutes");
 	}
 	
 	public static void parse(String[] args) throws ParseException {

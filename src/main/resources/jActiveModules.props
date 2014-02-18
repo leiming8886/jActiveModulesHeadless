@@ -1,3 +1,5 @@
 AP.initialTemperature=1.0
-AP.anneal=true
+AP.anneal=false
+AP.quench=false
+AP.totalIterations=100
 

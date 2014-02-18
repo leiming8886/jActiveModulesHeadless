@@ -143,7 +143,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 	}
 
 	
-	public synchronized List<Node> getNodeList() {
+	public List<Node> getNodeList() {
 		final List<Node> ret = new ArrayList<Node>(nodeCount.get());
 		int numRemaining = nodeCount.get();
 		NodePointer node = firstNode;
@@ -161,7 +161,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 	}
 	
 	
-	public synchronized List<Edge> getEdgeList() {
+	public List<Edge> getEdgeList() {
 		final List<Edge> ret = new ArrayList<Edge>(edgeCount.get());
 		EdgePointer edge = null;
 
@@ -189,7 +189,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 		return ret;
 	}
 
-	public synchronized List<Node> getNeighborList(final Node n, final Edge.Type e) {
+	public List<Node> getNeighborList(final Node n, final Edge.Type e) {
 		if (!containsNode(n))
 			return Collections.emptyList();
 
@@ -205,7 +205,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 		return ret;
 	}
 
-	public synchronized List<Edge> getAdjacentEdgeList(final Node n, final Edge.Type e) {
+	public List<Edge> getAdjacentEdgeList(final Node n, final Edge.Type e) {
 		if (!containsNode(n))
 			return Collections.emptyList();
 
@@ -220,7 +220,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 		return ret;
 	}
 
-	public synchronized Iterable<Edge> getAdjacentEdgeIterable(final Node n, final Edge.Type e) {
+	public Iterable<Edge> getAdjacentEdgeIterable(final Node n, final Edge.Type e) {
 		if (!containsNode(n))
 			return Collections.emptyList();
 
@@ -253,7 +253,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 	}
 
 	
-	public synchronized List<Edge> getConnectingEdgeList(final Node src, final Node trg, final Edge.Type e) {
+	public List<Edge> getConnectingEdgeList(final Node src, final Node trg, final Edge.Type e) {
 		if (!containsNode(src))
 			return Collections.emptyList();
 
@@ -372,9 +372,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 		final NodePointer thisNode;
 
-		synchronized (this) {
+		//synchronized (this) {
 			thisNode = (NodePointer) nodePointers.get(node.getSUID());
-		}
+		//}
 
 		if (thisNode == null)
 			return false;
@@ -389,9 +389,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 		final EdgePointer thisEdge;
 
-		synchronized (this) {
+		//synchronized (this) {
 			thisEdge = (EdgePointer) edgePointers.get(edge.getSUID());
-		}
+		//}
 
 		if (thisEdge == null)
 			return false;
@@ -401,7 +401,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 	
 	
-	public synchronized boolean containsEdge(final Node n1, final Node n2) {
+	public boolean containsEdge(final Node n1, final Node n2) {
 		// System.out.println("private containsEdge");
 		if (!containsNode(n1)) {
 			// System.out.println("private containsEdge doesn't contain node1 "
@@ -889,6 +889,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 		if ( nodes == null || nodes.isEmpty() )
 			return false;
 
+		boolean ret = removeNodesInternal(nodes);
+
+		return ret;
+	}
+	
+	
+	public boolean removeNodesKeepConnections(final Collection<Node> nodes) {
+		if ( nodes == null || nodes.isEmpty() )
+			return false;
+
+		Node[] neighboors;
+		for (Node n : nodes) {
+			if (!containsNode(n))
+				continue;
+			neighboors = getNeighborList(n,Edge.Type.ANY).toArray(new Node[0]);
+			System.out.println("Removing node: " + n.getName() + " neighbors size: " + neighboors.length);
+			for(int i = 0; i <neighboors.length;i++ )
+			{
+				for(int j = (i+1); j <neighboors.length;j++)
+				{
+					if(!containsEdge(neighboors[i],neighboors[j]))
+						addEdge(neighboors[i],neighboors[j],false);
+				}
+			}
+		}
 		boolean ret = removeNodesInternal(nodes);
 
 		return ret;

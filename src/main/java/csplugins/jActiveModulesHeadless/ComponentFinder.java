@@ -64,25 +64,28 @@ public class ComponentFinder{
     reached = new HashSet(2*nodes.size());
     //while there are nodes that we haven't seen in our search yet
     while(!done){
-      //make a new list
-      current = new Vector();
-      //start searching at the current node, the start method will make a 
-      //call back to postVisit after it is done searching any node. This is
-      //where we will update the status of that node
-      if(!valid.contains(nodes.get(start))){
-	throw new RuntimeException("Starting node for a component search was not present in the graph, this is an ActiveModules bug."/*((Node)nodes.get(start)).getCyRow().get("name", String.class)*/); //.getIdentifier());
-	}
-						
-      search((Node)nodes.get(start));
-      result.add(new Component(current));
-      finalSize += current.size();
-      while(start<nodes.size() && reached.contains(nodes.get(start))){
-	start++;
-      }
-      //check if we are out of nodes to examine
-      if(start == nodes.size()){
-	done = true;
-      }
+	    //make a new list
+	    current = new Vector();
+	    //start searching at the current node, the start method will make a 
+	    //call back to postVisit after it is done searching any node. This is
+	    //where we will update the status of that node
+	    if(!valid.contains(nodes.get(start)))
+	    {
+	    	throw new RuntimeException("Starting node for a component search was not present in the graph, this is an ActiveModules bug."/*((Node)nodes.get(start)).getCyRow().get("name", String.class)*/); //.getIdentifier());
+		}
+							
+	    search((Node)nodes.get(start));
+	    result.add(new Component(current));
+        finalSize += current.size();
+        while(start<nodes.size() && reached.contains(nodes.get(start)))
+        {
+        	start++;
+	    }
+	    //check if we are out of nodes to examine
+	    if(start == nodes.size())
+	    {
+	    	done = true;
+	    }
     }
     return result;
   }
@@ -91,10 +94,12 @@ public class ComponentFinder{
     current.add(root);
     reached.add(root);
     Iterator nodeIt = graph.getNeighborList(root, Edge.Type.ANY).iterator(); //.neighborsList(root).iterator();
-    while(nodeIt.hasNext()){
+    while(nodeIt.hasNext())
+    {
       Node myNode = (Node)nodeIt.next();
-      if(valid.contains(myNode) && !reached.contains(myNode)){
-	search(myNode);
+      if(valid.contains(myNode) && !reached.contains(myNode))
+      {
+    	  search(myNode);
       }
     }
   }

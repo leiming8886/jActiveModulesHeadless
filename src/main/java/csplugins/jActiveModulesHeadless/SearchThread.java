@@ -76,12 +76,12 @@ public abstract class SearchThread  { //extends Thread{
     Set nComponents = new HashSet();
     //Iterator it = graph.nodesIterator();
 				//CHANGE HERE
-				Iterator it = graph.getNeighborList(current, Edge.Type.ANY).iterator(); //.neighborsList(current).iterator();
-				while(it.hasNext()){
+	Iterator it = graph.getNeighborList(current, Edge.Type.ANY).iterator(); //.neighborsList(current).iterator();
+	while(it.hasNext()){
       //check for self loops
       Node myNode = (Node)it.next();
       if(current != myNode && nodeSet.contains(myNode)){
-	nComponents.add(node2component.get(myNode));
+    	  nComponents.add(node2component.get(myNode));
       }
     }
 	
