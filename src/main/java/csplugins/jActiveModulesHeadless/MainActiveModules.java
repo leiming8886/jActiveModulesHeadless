@@ -81,6 +81,12 @@ public class MainActiveModules {
 		{
 			readDelimiter = ReadDelimiter.getStringDelimiter(delimiter);
 		}
+		
+		if(outputDir.isEmpty())
+		{
+			System.out.println("[WARNING] Output Directory not defined. Home directory will be used instead.");
+			outputDir = System.getProperty("user.home")+File.separator+"jActiveModulesResults";
+		}
 			
 		
 		if(!netFile.isEmpty())
@@ -155,12 +161,6 @@ public class MainActiveModules {
 		activePaths.run();
 
 		Network[] subnetworks = activePaths.createSubnetworks();
-		
-		if(outputDir.isEmpty())
-		{
-			System.out.println("[WARNING] Output Directory not defined. Home directory will be used instead.");
-			outputDir = System.getProperty("user.home")+File.separator+"jActiveModulesResults";
-		}
 		
 		File outFile;
 		outFile = new File(outputDir);
