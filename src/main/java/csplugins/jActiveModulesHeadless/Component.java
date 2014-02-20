@@ -128,9 +128,9 @@ public class Component implements Comparable{
     zSumsSort = new double [attrNamesLength];
     Arrays.fill(zSums,0);
     contains = new HashSet();
-    if(regionScoring){
+    if(regionScoring)
       neighborhood = new HashSet();
-    }
+    
   }
   
     
@@ -155,58 +155,61 @@ public class Component implements Comparable{
     //and add them into our list of nodes. Take advantage
     //of the fact that these nodes are already summed
     //and add them inot zSums.
-    while(it.hasNext()){
+    while(it.hasNext())
+    {
       Component neighbor = (Component)it.next();
       nodes.addAll(neighbor.getNodes());
       contains.addAll(neighbor.contains);
-      for(int i = 0;i<zSums.length;i++){
-	zSums[i] += neighbor.zSums[i];
-      }
+      for(int i = 0;i<zSums.length;i++)
+    	  zSums[i] += neighbor.zSums[i];
+      
     }
     nodes.add(current);
     contains.add(current);
 	
     double [] sigs = (double [])exHash.get(current);
-    for(int j = 0;j < zSums.length;j++){
+    for(int j = 0;j < zSums.length;j++)
       zSums[j] += sigs[j];
-    }
+    
 	
 
-    if(regionScoring){
+    if(regionScoring)
+    {
       //update the contains hash by combining them all together
       //also update the neighbor hash, but remember to remove the new
       //linking node that is now no longer in the neighborhoold
       neighborhood = new HashSet();
       //add the nodes of the current node to the iterator
-      //Edge [] e_array = (Edge [])node2edges.get(current);
-      //for(int i = 0;i<e_array.length;i++){
+      
       for(Iterator neighborIt = graph.getNeighborList(current, Edge.Type.ANY).iterator();neighborIt.hasNext();)
       {
-	//Node currentNeighbor = e_array[i].opposite(current);
-	//Node currentNeighbor = (e_array[i].getSource().equals(current) ? e_array[i].getTarget() : e_array[i].getSource());
 		Node currentNeighbor = (Node)neighborIt.next();
-		if(!contains.contains(currentNeighbor)){
+		if(!contains.contains(currentNeighbor))
+		{
 		  //this neighbor is not in the component, so it
 		  //must be in the neighborhood. Add it in and add in
 		  //its score
 		  neighborhood.add(currentNeighbor);
 		  sigs = (double [])exHash.get(currentNeighbor);
-		  for(int j = 0;j < zSums.length;j++){
+		  for(int j = 0;j < zSums.length;j++)
 		    zSums[j] += sigs[j];
-		  }
+		  
 		}
       }
       it = nComponents.iterator();
-	  while(it.hasNext()){
+	  while(it.hasNext())
+	  {
 			Component neighbor = (Component)it.next();
 			//this will have to be a slow update because the neighborhoods
 			//may be overlapping
 			//don't add in the score for the current node, because it
 			//is not in the neighborhood
 			Iterator neighborIt = neighbor.neighborhood.iterator();
-			while(neighborIt.hasNext()){
+			while(neighborIt.hasNext())
+			{
 			  Node nodeNeighbor = (Node)neighborIt.next();
-			  if(!neighborhood.add(nodeNeighbor)){
+			  if(!neighborhood.add(nodeNeighbor))
+			  {
 			    //the neighborhood didn't change as a result of this
 			    //update, that means it must have been added before
 			    //this means that the score must have been counted
@@ -214,9 +217,8 @@ public class Component implements Comparable{
 			    //together, must decrement the z-scores to correct
 			    //for this
 			    sigs = (double [])exHash.get(nodeNeighbor);
-			    for(int j = 0;j < zSums.length;j++){
+			    for(int j = 0;j < zSums.length;j++)
 			      zSums[j] -= sigs[j];
-			    }
 					
 			  }
 			}
@@ -224,11 +226,12 @@ public class Component implements Comparable{
 	    
       //remove the new node from neighborhood, if it was there
       //in the first place
-      if(neighborhood.remove(current)){
+      if(neighborhood.remove(current))
+      {
 		sigs = (double [])exHash.get(current);
-		for(int j = 0;j < zSums.length;j++){
+		for(int j = 0;j < zSums.length;j++)
 		  zSums[j] -= sigs[j];
-		}
+		
       }
       //all the scoring has been done
 	    
@@ -248,17 +251,18 @@ public class Component implements Comparable{
     zSums = new double [attrNamesLength];
     zSumsSort = new double [attrNamesLength];
     Arrays.fill(zSums,0);	
-    if(nodes.size() == 0){
+    if(nodes.size() == 0)
+    {
       scored = true;
       score = Integer.MIN_VALUE;
     }
     //first calculate the sum of zscores for each condition
     Iterator it = nodes.iterator();
-    while(it.hasNext()){
+    while(it.hasNext())
+    {
       double [] sigs = (double [])exHash.get(it.next());
-      for(int j = 0;j < zSums.length;j++){
-	zSums[j] += sigs[j];
-      }
+      for(int j = 0;j < zSums.length;j++)
+    	  zSums[j] += sigs[j];
     }
 	
 
@@ -268,29 +272,27 @@ public class Component implements Comparable{
     //update the neighborhood hash and add in the score for all of the
     //neighbors, since they will not be added in teh simple scoring
     //function
-    if(regionScoring){
+    if(regionScoring)
+    {
       neighborhood = new HashSet();
       it = nodes.iterator();
-      while(it.hasNext()){
-	Node current = (Node)it.next();
-	//Edge [] e_array = (Edge [])node2edges.get(current);
-	//for(int i=0;i<e_array.length;i++){
-	//Node neighbor = e_array[i].opposite(current);
-	//    Node neighbor = (e_array[i].getSource().equals(current) ? e_array[i].getTarget() : e_array[i].getSource());
+      while(it.hasNext())
+      {
+    	  Node current = (Node)it.next();
 	
-	for(Iterator neighborIt = graph.getNeighborList(current, Edge.Type.ANY).iterator();neighborIt.hasNext();){
-	  Node neighbor = (Node)neighborIt.next();
-	  if(!contains.contains(neighbor) && !neighborhood.contains(neighbor)){
-	    //found a new neighbor, add its score into the mix
-	    //and add it to the neighbor hash
-	    neighborhood.add(neighbor);
-	    double [] sigs = (double [])exHash.get(neighbor);
-	    for(int j = 0;j < zSums.length;j++){
-	      zSums[j] += sigs[j];
-	    }
-	  }
-	}
-
+    	  for(Iterator neighborIt = graph.getNeighborList(current, Edge.Type.ANY).iterator();neighborIt.hasNext();)
+    	  {
+    		  Node neighbor = (Node)neighborIt.next();
+    		  if(!contains.contains(neighbor) && !neighborhood.contains(neighbor))
+    		  {
+    			  //found a new neighbor, add its score into the mix
+    			  //and add it to the neighbor hash
+    			  neighborhood.add(neighbor);
+    			  double [] sigs = (double [])exHash.get(neighbor);
+    			  for(int j = 0;j < zSums.length;j++)
+    				  zSums[j] += sigs[j];
+    		  }
+    	  }
       }
 		
     }
@@ -309,39 +311,40 @@ public class Component implements Comparable{
     nodes.add(node);
     contains.add(node);
 	
-    if(!regionScoring){
+    if(!regionScoring)
+    {
       double [] sigs = (double [])exHash.get(node);
-      for(int j = 0;j < zSums.length;j++){
-	zSums[j] += sigs[j];
-      }
+      for(int j = 0;j < zSums.length;j++)
+    	  zSums[j] += sigs[j];
     }
-    else{
-      if(!neighborhood.remove(node)){
-	//this node wasn't in the neighborhood, so we need to
-	//account for its score now
-	double [] sigs = (double [])exHash.get(node);
-	for(int j = 0;j < zSums.length;j++){
-	  zSums[j] += sigs[j];
-	}
+    else
+    {
+      if(!neighborhood.remove(node))
+      {
+    	  //this node wasn't in the neighborhood, so we need to
+    	  //account for its score now
+    	  double [] sigs = (double [])exHash.get(node);
+    	  for(int j = 0;j < zSums.length;j++)
+    		  zSums[j] += sigs[j];
+	
       }
       //need to add in the nodes neighbors to the hash
       //if they are not already present, if they are new
       //need to update z-scores, can't use the node.neighbors()
       //function because they have been removed from the graph
-      //Edge [] e_array = (Edge[])node2edges.get(node);
-      //for(int i=0;i<e_array.length;i++){
-      //Node neighbor = e_array[i].opposite(node);
-      for(Iterator neighborIt = graph.getNeighborList(node, Edge.Type.ANY).iterator();neighborIt.hasNext();){
-	Node neighbor = (Node)neighborIt.next();
-	//Node neighbor = (e_array[i].getSource().equals(node) ? e_array[i].getTarget() : e_array[i].getSource());
-	//if this is a new neighbor, need to add in its score
-	if(!contains.contains(neighbor) && !neighborhood.contains(neighbor)){
-	  neighborhood.add(neighbor);
-	  double [] sigs = (double [])exHash.get(neighbor);
-	  for(int j = 0;j < zSums.length;j++){
-	    zSums[j] += sigs[j];
-	  }
-	}
+      
+      for(Iterator neighborIt = graph.getNeighborList(node, Edge.Type.ANY).iterator();neighborIt.hasNext();)
+      {
+    	  Node neighbor = (Node)neighborIt.next();
+    	  //if this is a new neighbor, need to add in its score
+    	  if(!contains.contains(neighbor) && !neighborhood.contains(neighbor))
+    	  {
+    		  neighborhood.add(neighbor);
+    		  double [] sigs = (double [])exHash.get(neighbor);
+    		  for(int j = 0;j < zSums.length;j++)
+    			  zSums[j] += sigs[j];
+	  
+    	  }
       }
     }
 	
@@ -356,49 +359,49 @@ public class Component implements Comparable{
   public void removeNode(Node node){
     scored = false;
 	
-    if(!regionScoring){
+    if(!regionScoring)
+    {
       double [] sigs = (double [])exHash.get(node);
-      for(int j = 0;j < zSums.length;j++){
-	zSums[j] -= sigs[j];
-      }
+      for(int j = 0;j < zSums.length;j++)
+    	  zSums[j] -= sigs[j];
+      
     }
     nodes.remove(node);
     contains.remove(node);
-    if(regionScoring){
+    if(regionScoring)
+    {
       neighborhood.add(node);
       //find the neighbors that are no longer part of the neighborhood
       //and remove them and their score, in order to do this, need to find
       //it's neighbors and see if any of them are in the component
-      //Edge [] e_array = (Edge [])node2edges.get(node);
-      //for(int i=0;i<e_array.length;i++){
-      for(Iterator neighborIt = graph.getNeighborList(node, Edge.Type.ANY).iterator();neighborIt.hasNext();){
-	Node nextNeighbor = (Node)neighborIt.next();
-	//Node nextNeighbor = e_array[i].opposite(node);
-	//Node nextNeighbor = (e_array[i].getSource().equals(node) ? e_array[i].getTarget() : e_array[i].getSource());
-	//only do this for nodes that are in the component
-	if(neighborhood.contains(nextNeighbor)){
-	  //Edge [] next_array = (Edge [])node2edges.get(nextNeighbor);
-	  boolean stillNeighbor=false;
-	  //int j = 0;
-	  for(Iterator nextIt = graph.getNeighborList(nextNeighbor, Edge.Type.ANY).iterator();nextIt.hasNext() && !stillNeighbor;){
-	    //while(!stillNeighbor && j<next_array.length){
-	    Node myNode = (Node)nextIt.next();
-	    //Node myNode = (next_array[j].getSource().equals(nextNeighbor) ? next_array[j].getTarget() : next_array[j].getSource());
-	    if(contains.contains(myNode)){
-	      stillNeighbor = true;
-	    }
-	    //j++;
-	  }
-	  if(!stillNeighbor){
-	    //have to remove its score from the z-sums
-	    double [] sigs = (double [])exHash.get(nextNeighbor);
-	    for(int k = 0;k < zSums.length;k++){
-	      zSums[k] -= sigs[k];
-	    }
-	    //also have to remove it from the neighborhood hash
-	    neighborhood.remove(nextNeighbor);
-	  }
-	}
+      for(Iterator neighborIt = graph.getNeighborList(node, Edge.Type.ANY).iterator();neighborIt.hasNext();)
+      {
+    	  Node nextNeighbor = (Node)neighborIt.next();
+	
+    	  //only do this for nodes that are in the component
+    	  if(neighborhood.contains(nextNeighbor))
+    	  {
+    		  boolean stillNeighbor=false;
+	  
+    		  for(Iterator nextIt = graph.getNeighborList(nextNeighbor, Edge.Type.ANY).iterator();nextIt.hasNext() && !stillNeighbor;)
+    		  {
+	    
+    			  Node myNode = (Node)nextIt.next();
+    			  if(contains.contains(myNode))
+    				  stillNeighbor = true;
+	    
+    		  }
+    		  if(!stillNeighbor)
+    		  {
+    			  //have to remove its score from the z-sums
+    			  double [] sigs = (double [])exHash.get(nextNeighbor);
+    			  for(int k = 0;k < zSums.length;k++)
+    				  zSums[k] -= sigs[k];
+	    
+    			  //also have to remove it from the neighborhood hash
+    			  neighborhood.remove(nextNeighbor);
+    		  }
+    	  }
       }
     }
   }
@@ -442,19 +445,21 @@ public class Component implements Comparable{
    */
   public double calculateAdvancedScore(){
     double simple_score = calculateSimpleScore();
-    if(monteCorrection){
-      //if(nodes.size()==1){
-      //score = pStats.getOneNodeZ((Node)nodes.get(0));
-      //}
+    if(monteCorrection)
+    {
+      
       //correct the score based on the mean and standard deviation
-      if(regionScoring){
-	score = (simple_score-pStats.getMean(nodes.size()+neighborhood.size()))/(pStats.getStd(nodes.size()+neighborhood.size()));
+      if(regionScoring)
+      {
+    	  score = (simple_score-pStats.getMean(nodes.size()+neighborhood.size()))/(pStats.getStd(nodes.size()+neighborhood.size()));
       }
-      else{
-	score = (simple_score-pStats.getMean(nodes.size()))/(pStats.getStd(nodes.size()));
+      else
+      {
+    	  score = (simple_score-pStats.getMean(nodes.size()))/(pStats.getStd(nodes.size()));
       }
     }
-    else{
+    else
+    {
       score = simple_score;
     }
     scored = true;
@@ -469,18 +474,18 @@ public class Component implements Comparable{
   public double calculateSimpleScore() {
     int numConds = zSums.length;
     double nodeSqrt;
-    if(regionScoring){
+    if(regionScoring)
+    {
       nodeSqrt = Math.sqrt(nodes.size()+neighborhood.size());
-      //nodeSqrt = nodes.size()+neighborhood.size();	
     }
-    else{
+    else
+    {
       nodeSqrt = Math.sqrt(nodes.size());
-      //nodeSqrt = nodes.size();	
     }
     //sort the array of summed zscores
-    for(int i = 0;i<zSums.length;i++){
+    for(int i = 0;i<zSums.length;i++)
       zSumsSort[i] = zSums[i];
-    }
+    
     Arrays.sort(zSumsSort);
     int index = zSumsSort.length;
     double zSumOverSqrt = zSumsSort[index-1]/nodeSqrt;
@@ -490,7 +495,8 @@ public class Component implements Comparable{
     //keep track of how many conditions we have looked at
     min_i = attrNamesLength;
     //even the max zscore sum is pretty bad, screw it
-    if(zSumOverSqrt < threshhold){
+    if(zSumOverSqrt < threshhold)
+    {
       simple_score = zStats.rankAdjustedZUsingLog(zSumOverSqrt,numConds,1);
     }
     else{
@@ -498,12 +504,14 @@ public class Component implements Comparable{
       //note that these sums have to be corrected based on how many conditions we got
       //to choose from to try to get that maximum.
       simple_score = zStats.get_adj_z(numConds-index+1,zSumOverSqrt);	  
-      while(--index > 0  && (threshhold < (zSumOverSqrt=zSumsSort[index-1]/nodeSqrt))){
-	double temp = zStats.get_adj_z(zSums.length-index+1,zSumOverSqrt);
-	if(simple_score < temp){
-	  simple_score = temp;
-	  min_i = index;
-	}
+      while(--index > 0  && (threshhold < (zSumOverSqrt=zSumsSort[index-1]/nodeSqrt)))
+      {
+    	  double temp = zStats.get_adj_z(zSums.length-index+1,zSumOverSqrt);
+		if(simple_score < temp)
+		{
+		  simple_score = temp;
+		  min_i = index;
+		}
       }
     }
     return simple_score;
@@ -550,15 +558,12 @@ public class Component implements Comparable{
     //corresponds to this score.
     scored = false;
     Integer [] integerArray = new Integer[zSums.length];
-    for(int i=0;i < integerArray.length;i++){
+    
+    for(int i=0;i < integerArray.length;i++)
       integerArray[i] = new Integer(i);
-    }
 
     Arrays.sort(integerArray,new MyComparator());
 	
-    /*for(int i=0;i <= attrNamesLength-min_i;i++){
-      result[i]=attrNames[integerArray[zSums.length-i-1].intValue()];
-    }*/
     return result;
 	    
   }
@@ -586,9 +591,8 @@ public class Component implements Comparable{
   public String [] getNodeNames(Network network){
     String [] result = new String[nodes.size()];
     Iterator it = displayNodes.iterator();
-    for(int i=0;i<result.length;i++){
-        //result[i] = (String)Cytoscape.getNodeAttributeValue((Node)it.next(),Semantics.CANONICAL_NAME);
-        //result[i] = ((Node)it.next()).getCyRow().get("name", String.class); //.getIdentifier();
+    for(int i=0;i<result.length;i++)
+    {
     	Node node = (Node)it.next();
     	result[i] = node.getName();
     }
@@ -642,7 +646,8 @@ public class Component implements Comparable{
 	   * This is only applicable to the regional scoring
 	   * case
 	   */
-	  if(!regionScoring){
+	  if(!regionScoring)
+	  {
 		  displayNodes = new Vector(nodes);
 	  }
 	  if(regionScoring){
@@ -666,7 +671,7 @@ public class Component implements Comparable{
 			  Node current = (Node)nodeIt.next();
 			  tempComponent.addNode(current);
 			  double new_score = tempComponent.getScore();
-			  node2Increase.put(current.getSUID().intValue()/*.getRootGraphIndex()*/,new_score-previous_score);
+			  node2Increase.put(current.getSUID().intValue(),new_score-previous_score);
 			  tempComponent.removeNode(current);
 		  }
 		  
@@ -676,7 +681,8 @@ public class Component implements Comparable{
 		  
 		  int idy = 0;
 		  double score_increase = 1.0;
-		  while(idy < neighborNodes.size() && score_increase > 0){
+		  while(idy < neighborNodes.size() && score_increase > 0)
+		  {
 			  Node current = graph.getNode(neighborNodes.get(idy));
 			  tempComponent.addNode(current);
 			  double new_score = tempComponent.getScore();
@@ -692,9 +698,9 @@ public class Component implements Comparable{
 		  
 		  displayNodes = tempComponent.getNodes();
 		  displayScores = new double[zSums.length];
-		  for(int idx = 0;idx<displayScores.length;idx++){
+		  
+		  for(int idx = 0;idx<displayScores.length;idx++)
 			  displayScores[idx] = ZStatistics.oneMinusNormalCDF(tempComponent.zSums[idx]);
-		  }
 		  
 		  regionScoring = true;
 		  
@@ -704,7 +710,6 @@ public class Component implements Comparable{
 
   
 
-  // replace "cern.colt.list.OpenIntDoubleHashMap"
   private class OpenIntDoubleHashMap {
 	  private HashMap<Integer, Double> hashMap = new HashMap<Integer, Double>();
 	  private int size =-1;
@@ -777,7 +782,6 @@ public class Component implements Comparable{
 
   }
   
-  // replace "cern.colt.list.IntArrayList"
   private class IntArrayList {
 	  private ArrayList<Integer> intArray;
 	  public IntArrayList(int size){
