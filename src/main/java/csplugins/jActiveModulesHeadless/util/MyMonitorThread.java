@@ -35,6 +35,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class MyMonitorThread implements Runnable
 {
     private ThreadPoolExecutor executor;
+    final Runtime runtime;
+	long freeMem ;
+	long totalMem;
+    long usedMem ;
+	long maxMem ;
+	double usedMemFraction ;
      
     private int seconds;
      
@@ -42,6 +48,7 @@ public class MyMonitorThread implements Runnable
  
     public MyMonitorThread(ThreadPoolExecutor executor, int delay)
     {
+    	runtime = Runtime.getRuntime();
         this.executor = executor;
         this.seconds=delay;
     }
@@ -54,15 +61,19 @@ public class MyMonitorThread implements Runnable
     public void run()
     {
         while(run){
+        	freeMem = runtime.freeMemory();
+    		totalMem = runtime.totalMemory();
+            usedMem = totalMem - freeMem;
+    		maxMem = runtime.maxMemory();
+    		usedMemFraction = usedMem / (double) maxMem;
                 System.out.println(
-                    String.format("[monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, isShutdown: %s, isTerminated: %s",
+                    String.format("[monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, MemoryUsage: %f ",
                         this.executor.getPoolSize(),
                         this.executor.getCorePoolSize(),
                         this.executor.getActiveCount(),
                         this.executor.getCompletedTaskCount(),
                         this.executor.getTaskCount(),
-                        this.executor.isShutdown(),
-                        this.executor.isTerminated()));
+                        usedMemFraction*100));
                 try {
                     Thread.sleep(seconds*1000);
                 } catch (InterruptedException e) {
