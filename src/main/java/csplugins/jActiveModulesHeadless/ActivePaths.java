@@ -94,6 +94,8 @@ public class ActivePaths  {
 		}
 		this.network = Network;
 		
+		this.network.generateNeighborList();
+		
 	} // ctor
 
 	// --------------------------------------------------------------

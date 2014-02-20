@@ -93,7 +93,7 @@ public class ComponentFinder{
   private void search(Node root){
     current.add(root);
     reached.add(root);
-    Iterator nodeIt = graph.getNeighborList(root, Edge.Type.ANY).iterator(); //.neighborsList(root).iterator();
+    Iterator nodeIt = graph.getNeighborList(root).iterator(); 
     while(nodeIt.hasNext())
     {
       Node myNode = (Node)nodeIt.next();

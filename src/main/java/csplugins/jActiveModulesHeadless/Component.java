@@ -181,7 +181,7 @@ public class Component implements Comparable{
       neighborhood = new HashSet();
       //add the nodes of the current node to the iterator
       
-      for(Iterator neighborIt = graph.getNeighborList(current, Edge.Type.ANY).iterator();neighborIt.hasNext();)
+      for(Iterator neighborIt = graph.getNeighborList(current).iterator();neighborIt.hasNext();)
       {
 		Node currentNeighbor = (Node)neighborIt.next();
 		if(!contains.contains(currentNeighbor))
@@ -280,7 +280,7 @@ public class Component implements Comparable{
       {
     	  Node current = (Node)it.next();
 	
-    	  for(Iterator neighborIt = graph.getNeighborList(current, Edge.Type.ANY).iterator();neighborIt.hasNext();)
+    	  for(Iterator neighborIt = graph.getNeighborList(current).iterator();neighborIt.hasNext();)
     	  {
     		  Node neighbor = (Node)neighborIt.next();
     		  if(!contains.contains(neighbor) && !neighborhood.contains(neighbor))
@@ -333,7 +333,7 @@ public class Component implements Comparable{
       //need to update z-scores, can't use the node.neighbors()
       //function because they have been removed from the graph
       
-      for(Iterator neighborIt = graph.getNeighborList(node, Edge.Type.ANY).iterator();neighborIt.hasNext();)
+      for(Iterator neighborIt = graph.getNeighborList(node).iterator();neighborIt.hasNext();)
       {
     	  Node neighbor = (Node)neighborIt.next();
     	  //if this is a new neighbor, need to add in its score
@@ -374,7 +374,7 @@ public class Component implements Comparable{
       //find the neighbors that are no longer part of the neighborhood
       //and remove them and their score, in order to do this, need to find
       //it's neighbors and see if any of them are in the component
-      for(Iterator neighborIt = graph.getNeighborList(node, Edge.Type.ANY).iterator();neighborIt.hasNext();)
+      for(Iterator neighborIt = graph.getNeighborList(node).iterator();neighborIt.hasNext();)
       {
     	  Node nextNeighbor = (Node)neighborIt.next();
 	
@@ -383,7 +383,7 @@ public class Component implements Comparable{
     	  {
     		  boolean stillNeighbor=false;
 	  
-    		  for(Iterator nextIt = graph.getNeighborList(nextNeighbor, Edge.Type.ANY).iterator();nextIt.hasNext() && !stillNeighbor;)
+    		  for(Iterator nextIt = graph.getNeighborList(nextNeighbor).iterator();nextIt.hasNext() && !stillNeighbor;)
     		  {
 	    
     			  Node myNode = (Node)nextIt.next();

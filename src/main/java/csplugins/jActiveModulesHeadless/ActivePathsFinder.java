@@ -8,19 +8,23 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.*;
 
 import javax.swing.JFrame;
 
 
 import csplugins.jActiveModulesHeadless.data.ActivePathFinderParameters;
+import csplugins.jActiveModulesHeadless.util.MyMonitorThread;
 
 
 /**
@@ -283,13 +287,6 @@ public class ActivePathsFinder {
 
 		comps = filterResults(comps);
 		
-		/*
-		 * Finalize the display information
-		 */
-		//for(Iterator compIt = comps.iterator();compIt.hasNext();){
-		//	((Component)compIt.next()).finalizeDisplay();
-		//}
-		
 		Component [] temp = new Component[0];
 		int size = Math.min(comps.size(), apfParams.getNumberOfPaths());
 		temp = (Component[]) comps.subList(0, size).toArray(temp);
@@ -342,22 +339,50 @@ public class ActivePathsFinder {
 
 	private void runGreedySearch(Collection seedList) {
 		// initialize global best score
-		node2BestComponent = new HashMap();
+		Node nodeTemp;
+		node2BestComponent = new HashMap(seedList.size());
 		
+		Iterator nodeIterator = seedList.iterator();
+		int i =0;
+		final Runtime runtime = Runtime.getRuntime();
+		long freeMem = runtime.freeMemory();
+		long totalMem = runtime.totalMemory();
+        long usedMem = totalMem - freeMem;
+		long maxMem = runtime.maxMemory();
+		double usedMemFraction = usedMem / (double) maxMem;
 		
 		int number_threads = apfParams.getMaxThreads();
+		if(number_threads < (Runtime.getRuntime().availableProcessors()-1))
+			number_threads = Runtime.getRuntime().availableProcessors()-1;
+		
+		ThreadPoolExecutor executorPool = new ThreadPoolExecutor(number_threads,number_threads,7, TimeUnit.DAYS,new ArrayBlockingQueue<Runnable>(seedList.size()));
+		
+		//start the monitoring thread
+        MyMonitorThread monitor = new MyMonitorThread(executorPool, 5);
 
-		//		Vector threadVector = new Vector();
-		for (int i = 0; i < number_threads; i++) {
+        Thread monitorThread = new Thread(monitor);
+        monitorThread.start();
+                
+		while(nodeIterator.hasNext()){
+			Component component = new Component();
+			nodeTemp = (Node) nodeIterator.next();
+			node2BestComponent.put(nodeTemp, component);
 			GreedySearchThread gst = new GreedySearchThread(network,
-					apfParams, seedList,
-					node2BestComponent, nodes);
+					apfParams,nodeTemp,
+					component, nodes);
 			
-			//gst.start();
-			//threadVector.add(gst);
-			gst.run();
+			executorPool.execute(gst);
 		}
-
+		
 	
+		//executor.shutdown();
+		executorPool.shutdown();
+		// Wait until all threads are finish
+		try {
+			executorPool.awaitTermination(7, TimeUnit.DAYS);
+         	//executor.awaitTermination(7, TimeUnit.DAYS);
+        } catch (Exception e) {}
+		monitor.shutdown();
+		
 	}
 }

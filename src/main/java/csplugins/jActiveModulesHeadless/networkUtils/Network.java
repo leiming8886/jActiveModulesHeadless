@@ -51,6 +51,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 	private final AtomicInteger nodeCount;
 	private final AtomicInteger edgeCount;
+	
+	private Map<Node,List<Node>> neighborsMap;
 
 	private NodePointer firstNode;
 	
@@ -72,6 +74,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 		nodeTable = new NodeTable();
 		name = "";
 		score = 0.0;
+		neighborsMap = null;
 	}
 
 	/**
@@ -203,6 +206,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 		}
 
 		return ret;
+	}
+	
+	public List<Node> getNeighborList(final Node n) {
+
+		List<Node> tempList = null;
+		if(neighborsMap != null)
+			tempList = neighborsMap.get(n);
+		
+		if(tempList == null)
+			return getNeighborList(n, Edge.Type.ANY);
+		else
+			return neighborsMap.get(n);
+	}
+	
+	public void generateNeighborList()
+	{
+		Node nodeTemp;
+		neighborsMap = new HashMap<Node,List<Node>>(nodeCount.get());
+		Iterator<Node> nodeIterator = getNodeList().iterator();
+		
+		while(nodeIterator.hasNext()){
+			nodeTemp = (Node) nodeIterator.next();
+			neighborsMap.put(nodeTemp, getNeighborList(nodeTemp,Edge.Type.ANY));
+		}
+		
 	}
 
 	public List<Edge> getAdjacentEdgeList(final Node n, final Edge.Type e) {

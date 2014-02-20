@@ -1,5 +1,6 @@
 AP.initialTemperature=1.0
-AP.anneal=false
-AP.quench=false
-AP.totalIterations=100
-
+AP.anneal=true
+AP.quench=true
+AP.totalIterations=2500
+AP.maxDepth=2
+AP.regional=true
