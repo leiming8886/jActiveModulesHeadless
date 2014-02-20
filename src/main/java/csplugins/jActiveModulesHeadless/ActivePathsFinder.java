@@ -343,13 +343,6 @@ public class ActivePathsFinder {
 		node2BestComponent = new HashMap(seedList.size());
 		
 		Iterator nodeIterator = seedList.iterator();
-		int i =0;
-		final Runtime runtime = Runtime.getRuntime();
-		long freeMem = runtime.freeMemory();
-		long totalMem = runtime.totalMemory();
-        long usedMem = totalMem - freeMem;
-		long maxMem = runtime.maxMemory();
-		double usedMemFraction = usedMem / (double) maxMem;
 		
 		int number_threads = apfParams.getMaxThreads();
 		if(number_threads < (Runtime.getRuntime().availableProcessors()-1))
