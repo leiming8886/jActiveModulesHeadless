@@ -1,6 +1,8 @@
 AP.initialTemperature=1.0
 AP.anneal=true
-AP.quench=true
-AP.totalIterations=2500
+AP.quench=false
+AP.totalIterations=100000
 AP.maxDepth=2
-AP.regional=true
+AP.regional=false
+AP.randomSeed=445454
+AP.hubSize=300

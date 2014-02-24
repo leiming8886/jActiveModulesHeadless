@@ -65,8 +65,10 @@ public class MainActiveModules {
 		int dataSize = 0;
 		String readDelimiter;
 		FileWriter fw = null;
+		File cleanedNetwork;
 		Collection<Node> removeNodes = new ArrayList<Node>();
 		long startTime = System.currentTimeMillis();
+		List<File> listFiles = new ArrayList<File>();
 		
 		try {
             parse(args);
@@ -123,7 +125,10 @@ public class MainActiveModules {
 				dataSize = dataReader.readData(inputNetwork, file,readDelimiter);
 			
 			if(dataSize == 0)
+			{
+				System.out.println("[ERROR] Data file does not contain any data");
 				return;
+			}
 		}
 		else
 		{
@@ -153,9 +158,26 @@ public class MainActiveModules {
 		
 		if(!removeNodes.isEmpty())
 		{
-			inputNetwork.removeNodesKeepConnections(removeNodes);
-			//inputNetwork.removeNodes(removeNodes);
-			System.out.println("[WARNING] There are " + removeNodes.size() + " nodes removed from the network because there is no data for those networks");
+			System.out.println("[WARNING] There are " + removeNodes.size() + " nodes that will be removed from the network because there is no data for those networks");
+			for(Node node : removeNodes)
+			{
+				if(inputNetwork.getNeighborList(node).size()> apfParams.getMinHubSize())
+					inputNetwork.removeNodes(Collections.singletonList(node));
+				else
+					inputNetwork.removeNodesKeepConnections(Collections.singletonList(node));
+			}
+			cleanedNetwork = new File(outputDir,"cleanedNetwork.sif");
+			
+			FileOutputStream outStream2;
+			try {
+				outStream2 = new FileOutputStream(cleanedNetwork);
+				writer = new SifWriter(outStream2, inputNetwork);	
+				writer.writeSif();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			listFiles.add(cleanedNetwork);
 		}
 		
 		apfParams.setNetwork(inputNetwork);
@@ -177,7 +199,7 @@ public class MainActiveModules {
 		outStream = new OutputStream[subnetworks.length];
 		File resultsFile = new File (outputDir,"jActiveModules_Search_Results.txt");
 		File zipOutputFile;
-		List<File> listFiles = new ArrayList<File>();
+		
 		listFiles.add(resultsFile);
 		String nameFile =new SimpleDateFormat("'jActiveModuleResults-'yyyy-MM-dd hh-mm-ss'.zip'").format(new Date());
 		

@@ -229,41 +229,46 @@ public abstract class SearchThread  { //extends Thread{
       List neighborList = graph.getNeighborList(toggle); //.neighborsList(toggle);
       //check if it is a hub according ot the user's 
       //parameters
-      if(neighborList.size() >= apfParams.getMinHubSize()){
-						//calculate the minimum score of the components
+      if(neighborList.size() >= apfParams.getMinHubSize())
+      {
+		//calculate the minimum score of the components
 	     //being tracked, this is a pretty inefficient way
 	     //to do it, but hubs are usually rare and the number
 	     //of paths is small, so I don't think it really 
 	     //matters.
-	Iterator it = oldPaths.iterator();
-	int i = 0;
-	while(i<apfParams.getNumberOfPaths()-1){
-	  i++;
-	  it.next();
-	}
-	//I guess this is sorted now, so I don't know why this the iterator
-	//is being used to find the min score
-	//for each neighboring node get its component, if the components
-	//score is low, then that node gets that axe.
-	double min_score = ((Component)it.next()).getScore();
-	for(Iterator neighborIt = neighborList.iterator();neighborIt.hasNext();){
-	  Node neighbor = (Node)neighborIt.next();
-	  //make sure to include a check for self edges here
-	  if(!neighbor.equals(toggle) && nodeSet.contains(neighbor)){
-	    //get the component that this node belongs to
-	    Component nComponent = (Component)node2component.get(neighbor);
-	    if(nComponent.getScore() < min_score){
-	      hiddenNodes.add(neighbor);
-	      nodeSet.remove(neighbor);
-	    }
-	  }
-	}
-}
-else{
-	hiddenNodes.clear();
-}
+    	  Iterator it = oldPaths.iterator();
+    	  int i = 0;
+    	  while(i<apfParams.getNumberOfPaths()-1)
+    	  {
+    		  i++;
+    		  it.next();
+    	  }
+    	  //I guess this is sorted now, so I don't know why this the iterator
+    	  //is being used to find the min score
+    	  //for each neighboring node get its component, if the components
+    	  //score is low, then that node gets that axe.
+    	  double min_score = ((Component)it.next()).getScore();
+    	  for(Iterator neighborIt = neighborList.iterator();neighborIt.hasNext();)
+    	  {
+    		  Node neighbor = (Node)neighborIt.next();
+    		  //make sure to include a check for self edges here
+    		  if(!neighbor.equals(toggle) && nodeSet.contains(neighbor))
+    		  {
+    			  //get the component that this node belongs to
+    			  Component nComponent = (Component)node2component.get(neighbor);
+    			  if(nComponent.getScore() < min_score)
+    			  {
+    				  hiddenNodes.add(neighbor);
+    				  nodeSet.remove(neighbor);
+    			  }
+    		  }
+    	  }
+      }
+      else{
+    	  hiddenNodes.clear();
+      }
 	    
-}
+    }
 }
 
 
