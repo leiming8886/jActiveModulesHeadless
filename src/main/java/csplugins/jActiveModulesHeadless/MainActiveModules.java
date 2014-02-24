@@ -1,6 +1,11 @@
 package csplugins.jActiveModulesHeadless;
 
 import java.io.*;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.zip.Deflater;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import java.util.*;
 
 
@@ -46,6 +51,7 @@ public class MainActiveModules {
 	static String paramFile = "";
 	static String outputDir = "";
 	static String delimiter = "";
+	static String outputFileName = "";
 	
 	public static void main(String[] args) {
 
@@ -170,6 +176,15 @@ public class MainActiveModules {
 		
 		outStream = new OutputStream[subnetworks.length];
 		File resultsFile = new File (outputDir,"jActiveModules_Search_Results.txt");
+		File zipOutputFile;
+		List<File> listFiles = new ArrayList<File>();
+		listFiles.add(resultsFile);
+		String nameFile =new SimpleDateFormat("'jActiveModuleResults-'yyyy-MM-dd hh-mm-ss'.zip'").format(new Date());
+		
+		if(outputFileName.isEmpty())
+			zipOutputFile = new File(outputDir,nameFile);
+		else
+			zipOutputFile = new File(outputDir,outputFileName);
 		
 		String results = "Network" + readDelimiter + "Score\n";
 		
@@ -179,11 +194,12 @@ public class MainActiveModules {
 			try{	
 				String pathName;
 				if(subnetworks[i].getName().isEmpty())
-					pathName = "Module_" + runCount + "_" + (i + 1) + ".sif";
+					pathName = "Module_" + (i + 1) + "_" + (new DecimalFormat("#.##").format(subnetworks[i].getScore())).toString() + ".sif";
 				else
 					pathName = subnetworks[i].getName() + ".sif";
 				System.out.println("new network name: " + pathName);
 				outFile = new File (outputDir,pathName);
+				listFiles.add(outFile);
 				outStream[i] = new FileOutputStream(outFile);
 				writer = new SifWriter(outStream[i], subnetworks[i]);
 				
@@ -219,12 +235,24 @@ public class MainActiveModules {
 		if(fw != null)
 		{
 			try {
+				fw.write("\n\n" + apfParams.toString());
+				fw.flush();
 				fw.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+		
+		try {
+			packZip(zipOutputFile,listFiles);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		for(File files : listFiles)
+			files.deleteOnExit();
 		
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
@@ -270,6 +298,13 @@ public class MainActiveModules {
                 .hasArg()
                 .withDescription("Delimiter ((space) | (tab) | (semicolon)), default: space")
                 .create(mode);
+        String outputFile = "of";
+        name = "outputFile";
+        Option outFileOpt = OptionBuilder.withArgName(name)
+                .withLongOpt(name)
+                .hasArg()
+                .withDescription("The name of zip output file")
+                .create(mode);
         
 
         String help = "help";
@@ -280,6 +315,7 @@ public class MainActiveModules {
         options.addOption(algorithmOpt);
         options.addOption(outputOpt);
         options.addOption(deliOpt);
+        options.addOption(outFileOpt);
         
 
         options.addOption(helpOpt);
@@ -310,6 +346,9 @@ public class MainActiveModules {
         if (line.hasOption(mode)) {
         	delimiter = line.getOptionValue(mode);
         }
+        if (line.hasOption(outputFile)) {
+        	outputFileName = line.getOptionValue(outputFile);
+        }
         
         
     }
@@ -320,6 +359,48 @@ public class MainActiveModules {
         } catch (ParseException e1) {
             e1.printStackTrace();
         }
+    }
+	
+	public static void packZip(File output, List<File> sources) throws IOException
+    {
+        System.out.println("Packaging to " + output.getName());
+        ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(output));
+        zipOut.setLevel(Deflater.DEFAULT_COMPRESSION);
+
+        for (File source : sources)
+        {
+                zipFile(zipOut, "", source);
+        }
+        zipOut.flush();
+        zipOut.close();
+        System.out.println("Done");
+    }
+	
+	private static void zipFile(ZipOutputStream zos, String path, File file) throws IOException
+    {
+        if (!file.canRead())
+        {
+            System.out.println("Cannot read " + file.getCanonicalPath() + " (maybe because of permissions)");
+            return;
+        }
+
+        System.out.println("Compressing " + file.getName());
+        zos.putNextEntry(new ZipEntry(file.getName()));
+
+        FileInputStream fis = new FileInputStream(file);
+
+        byte[] buffer = new byte[4092];
+        int byteCount = 0;
+        while ((byteCount = fis.read(buffer)) != -1)
+        {
+            zos.write(buffer, 0, byteCount);
+            //System.out.print('.');
+            //System.out.flush();
+        }
+        //System.out.println();
+
+        fis.close();
+        zos.closeEntry();
     }
 
 }

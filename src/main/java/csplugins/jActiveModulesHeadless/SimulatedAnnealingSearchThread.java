@@ -3,6 +3,7 @@ package csplugins.jActiveModulesHeadless;
 
 import csplugins.jActiveModulesHeadless.networkUtils.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,6 +46,7 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 		    System.out.println("Using hub finding: "+apfParams.getMinHubSize());
 		}
 	
+		Arrays.sort(nodes);
 		
 		for(int i = 0;i< nodes.length;i++)
 		{

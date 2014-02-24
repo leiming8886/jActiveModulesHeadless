@@ -10,6 +10,7 @@ package csplugins.jActiveModulesHeadless;
 //------------------------------------------------------------------------------
 
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -282,7 +283,7 @@ public class ActivePaths  {
 		
 		for (int i = 0; i < activePaths.length; i++) {
 			Component thePath = activePaths[i];
-			String pathName = "Module_" + runCount + "_" + (i + 1);
+			
 			
 			// get nodes for this path
 			Vector nodeVect = (Vector) thePath.getDisplayNodes();
@@ -311,8 +312,9 @@ public class ActivePaths  {
 				for (Object e : edgeSet)
 					subnetworks2[i].addEdge((Edge)e);
 			//subnetworks[i] = Cytoscape.createNetwork(nodeSet, edgeSet, pathName, Network, false);
-			subnetworks2[i].setName(pathName);
 			subnetworks2[i].setScore(thePath.getScore());
+			String pathName = "Module_" + (i + 1) + "_" + new DecimalFormat("#.##").format(subnetworks2[i].getScore()) ;
+			subnetworks2[i].setName(pathName);
 
 		}
 		
