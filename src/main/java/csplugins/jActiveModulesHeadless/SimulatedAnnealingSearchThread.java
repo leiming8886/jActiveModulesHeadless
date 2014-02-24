@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
+import java.util.ArrayList;
 
 
 import csplugins.jActiveModulesHeadless.data.ActivePathFinderParameters;
@@ -45,6 +46,14 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 		}
 	
 		
+		for(int i = 0;i< nodes.length;i++)
+		{
+			if(rand.nextDouble() < 0.5)
+			{
+				if(nodeSet.contains(nodes[i]))
+					nodeSet.remove(nodes[i]);
+			}
+		}
 	
 		//NodeList [] components = GraphConnectivity.connectedComponents(graph);
 		ComponentFinder cf = new ComponentFinder(graph,nodeSet);
@@ -52,7 +61,7 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 	
 		//why is a new vector being creater here?
 		//Iterator compIt = cf.getComponents(new Vector(graph.nodesList())).iterator();
-		Iterator compIt = cf.getComponents(graph.getNodeList()).iterator();
+		Iterator compIt = cf.getComponents( new ArrayList(nodeSet)).iterator();
 		while(compIt.hasNext()){
 		    //Component tempComponent = new Component((Vector)compIt.next());
 		    oldPaths.sortedAdd((Component)compIt.next());
@@ -68,6 +77,7 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 		while(it.hasNext()){
 		    Component comp = (Component)it.next();
 		    Vector compNodes = comp.getNodes();
+		    System.out.println("components sizes: " + compNodes.size() + " score: " + comp.score);
 		    for(int i=0;i<compNodes.size();i++){
 			node2component.put(compNodes.get(i),comp);
 		    }
@@ -79,8 +89,11 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 		
 		//int display_step = Math.max(1,apfParams.getTotalIterations()/ActivePathsFinder.UPDATE_COUNT);
 		int display_step = ActivePathsFinder.DISPLAY_STEP;
-		while(timeout < apfParams.getTotalIterations()){
+		while(timeout < apfParams.getTotalIterations())
+		{
+			//System.out.println("first path num nodes: " + ((Component)oldPaths.lastElement()).getNodes().size());
 		    timeout++;
+		    System.out.println("Annealing Running iteration " + timeout);
 	//	    if(progress != null && timeout%display_step == 0){
 	//		progress.update();
 	//	    }
@@ -119,12 +132,19 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 				int i = 0;
 				Iterator oldIt = oldPaths.iterator();
 				Iterator newIt = newPaths.iterator();
+				
+				/*while(oldIt.hasNext()){
+				    Component comp = (Component)oldIt.next();
+				    System.out.println("components sizes: " +  comp.getNodes().size() + " score: " + comp.score);
+				    
+				}*/
 				//compare the top scoring old and new paths against each other in order. If we find a 
 				//better scoring component, we automatically except the move. Otherwise, use the temperature
 				//to reject the move with a certain probability.
 				//Note that newIt may be larger, but can not be smaller than oldIt, here we will just compare the
 				//scores of oldIt versus the matching elements of the new paths
-				while(!decision && (newIt.hasNext() && oldIt.hasNext())){
+				while(!decision && (newIt.hasNext() && oldIt.hasNext()))
+				{
 				    double delta = ((Component)newIt.next()).getScore()-((Component)oldIt.next()).getScore();
 				    if(delta > .001){
 				    	keep = true;
@@ -146,7 +166,8 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 				    //rehashing everything in newPaths.
 				    oldPaths = newPaths;
 				    it = newComps.iterator();
-				    while(it.hasNext()){
+				    while(it.hasNext())
+				    {
 						Component currComp = ((Component)it.next());
 						Iterator nodeIt = currComp.getNodes().iterator();
 						while(nodeIt.hasNext()){
@@ -154,21 +175,25 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 						}
 				    }
 				}
-				else{
+				else
+				{
 				    //undo hte current move, if we are dong hubfinding, may need
 				    //to restore the hidden nodes as well.
 				    toggleNode(current_node);
-				    if(hubFinding){
-					it = hiddenNodes.iterator();
-					while(it.hasNext()){
-					    toggleNode((Node)it.next());
-					}
+				    if(hubFinding)
+				    {
+						it = hiddenNodes.iterator();
+						while(it.hasNext())
+						{
+						    toggleNode((Node)it.next());
+						}
 				    }
 				}
 		    }
 		    else{
 				toggleNode(current_node);		
-				if(hubFinding){
+				if(hubFinding)
+				{
 				    it = hiddenNodes.iterator();
 				    while(it.hasNext()){
 					toggleNode((Node)it.next());

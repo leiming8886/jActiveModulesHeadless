@@ -46,5 +46,30 @@ public class NodeTable {
 		}
 		
 	}
+	
+	public void randomizeTable()
+	{
+		List<Node> nodesList = new ArrayList<Node> (nMap.keySet());
+		int size = nodesList.size();
+		int k;
+		Row tempRow;
+		Random rand = new Random();
+		
+		for (int l=size;l>0;l--){
+	        k = rand.nextInt()%l;//random number between 0 and l(excluded).
+
+	        
+	        if (k!=(l-1)){//exchange permuting[k] and permuting[l-1]
+	        	tempRow =  nMap.get(nodesList.get(k));
+	        	nMap.put(nodesList.get(k), nMap.get(nodesList.get(l-1)));
+	        	nMap.put(nodesList.get(l-1), tempRow);
+	            //stock=permuting[k];
+	            //permuting[k]=permuting[l-1];
+	            //permuting[l-1]=stock;
+	            
+	        }
+	    }
+		
+	}
 }
 
