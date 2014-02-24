@@ -59,13 +59,11 @@ public class NodeTable {
 	        k = rand.nextInt()%l;//random number between 0 and l(excluded).
 
 	        
-	        if (k!=(l-1)){//exchange permuting[k] and permuting[l-1]
+	        if (k!=(l-1)){//exchange node row [k] and node row [l-1] in nMap.
 	        	tempRow =  nMap.get(nodesList.get(k));
 	        	nMap.put(nodesList.get(k), nMap.get(nodesList.get(l-1)));
 	        	nMap.put(nodesList.get(l-1), tempRow);
-	            //stock=permuting[k];
-	            //permuting[k]=permuting[l-1];
-	            //permuting[l-1]=stock;
+
 	            
 	        }
 	    }
