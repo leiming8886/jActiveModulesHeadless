@@ -192,7 +192,10 @@ public class MainActiveModules {
 		apfParams.setSizeExpressionAttributes(dataSize);
 		
 		if(randomRun)
+		{
+			System.out.println("Permuting network data...");
 			inputNetwork.getNodeTable().randomizeTable();
+		}
 
 		activePaths = new ActivePaths(inputNetwork, apfParams);
 
