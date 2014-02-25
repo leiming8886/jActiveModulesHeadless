@@ -66,6 +66,7 @@ public class SifWriter  {
 
 		final String lineSep = System.getProperty("line.separator");
 		final List<Node> nodeList = network.getNodeList();
+		String interactionName;
 
 		for (Node node : nodeList) {
 			
@@ -75,6 +76,10 @@ public class SifWriter  {
 			if(sourceName == null || sourceName.length() == 0)
 				throw new IllegalStateException("This network contains null or empty node name.");
 			
+			if(network.getInteractionType().isEmpty())
+				interactionName = DEFAULT_INTERACTION;
+			else
+				interactionName = network.getInteractionType();
 
 			if (edges.size() == 0) {
 				writer.write(sourceName + lineSep);
@@ -87,8 +92,6 @@ public class SifWriter  {
 						final String targetName = target.getName();
 						if(targetName == null || targetName.length() == 0)
 							throw new IllegalStateException("This network contains null or empty node name.");
-						
-						String interactionName = DEFAULT_INTERACTION;
 
 						writer.write(sourceName);
 						writer.write("\t");

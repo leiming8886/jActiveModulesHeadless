@@ -21,7 +21,9 @@ public class SifNetworkReader {
 	public Network readNetwork(File networkFile, String delimiter)
 	{
 		Network newNetwork = null;
-		String networkCols[];
+		String networkCols[] = null;
+		String interac = "";
+		int i =0;
 		NodeTable table;
 		
 		if(!networkFile.exists())
@@ -38,7 +40,11 @@ public class SifNetworkReader {
             	if(networkCols.length != 3)
     		    	return null;
             	
-            	
+            	if(i == 0)
+            	{
+            		interac = networkCols[1];
+            		i++;
+            	}
             	Node sourceNode = nMap.get(networkCols[0]);
         		if (sourceNode == null) {
         			sourceNode =  new Node(networkCols[0]);
@@ -60,7 +66,10 @@ public class SifNetworkReader {
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-
+		finally{
+			newNetwork.setInteractionType(interac);
+		}
+		
 		return newNetwork;
 	}
 }

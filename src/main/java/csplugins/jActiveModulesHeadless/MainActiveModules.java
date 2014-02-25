@@ -52,6 +52,7 @@ public class MainActiveModules {
 	static String outputDir = "";
 	static String delimiter = "";
 	static String outputFileName = "";
+	static boolean randomRun = false;
 	
 	public static void main(String[] args) {
 
@@ -96,6 +97,9 @@ public class MainActiveModules {
 			outputDir = System.getProperty("user.home")+File.separator+"jActiveModulesResults";
 		}
 			
+		File outDir = new File (outputDir);
+		if(!outDir.exists())
+			outDir.mkdirs();
 		
 		if(!netFile.isEmpty())
 		{
@@ -136,25 +140,25 @@ public class MainActiveModules {
 			return;
 		}
 			
-		try{
-			File emptyFile = new File (outputDir,"emptyNodes.txt");
-			fw = new FileWriter(emptyFile);
+		//try{
+		//	File emptyFile = new File (outputDir,"emptyNodes.txt");
+		//	fw = new FileWriter(emptyFile);
 			for(Row nodeRow : inputNetwork.getNodeTable().getAllRows())
 			{
 				if(nodeRow.getDataSize() == 0)
 				{
-					fw.write(nodeRow.getName());
-					fw.flush();
+					//fw.write(nodeRow.getName());
+					//fw.flush();
 					removeNodes.add(inputNetwork.getNode(nodeRow.getName()));
 				}
 					
 			}
-			if(fw != null)
+		/*	if(fw != null)
 				fw.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		
 		if(!removeNodes.isEmpty())
 		{
@@ -183,6 +187,9 @@ public class MainActiveModules {
 		apfParams.setNetwork(inputNetwork);
 		
 		apfParams.setSizeExpressionAttributes(dataSize);
+		
+		if(randomRun)
+			inputNetwork.getNodeTable().randomizeTable();
 
 		activePaths = new ActivePaths(inputNetwork, apfParams);
 
@@ -215,6 +222,7 @@ public class MainActiveModules {
 			
 			try{	
 				String pathName;
+				subnetworks[i].setInteractionType(inputNetwork.getInteractionType());
 				if(subnetworks[i].getName().isEmpty())
 					pathName = "Module_" + (i + 1) + "_" + (new DecimalFormat("#.##").format(subnetworks[i].getScore())).toString() + ".sif";
 				else
@@ -325,8 +333,15 @@ public class MainActiveModules {
         Option outFileOpt = OptionBuilder.withArgName(name)
                 .withLongOpt(name)
                 .hasArg()
-                .withDescription("The name of zip output file")
-                .create(mode);
+                .withDescription("The name of zip output file (optional)")
+                .create(outputFile);
+        String randomData = "r";
+        name = "randomData";
+        Option randomOpt = OptionBuilder.withArgName(name)
+                .withLongOpt(name)
+                .hasArg()
+                .withDescription("Use a random permutation of data, default: false")
+                .create(randomData);
         
 
         String help = "help";
@@ -338,6 +353,7 @@ public class MainActiveModules {
         options.addOption(outputOpt);
         options.addOption(deliOpt);
         options.addOption(outFileOpt);
+        options.addOption(randomOpt);
         
 
         options.addOption(helpOpt);
@@ -370,6 +386,9 @@ public class MainActiveModules {
         }
         if (line.hasOption(outputFile)) {
         	outputFileName = line.getOptionValue(outputFile);
+        }
+        if (line.hasOption(randomData)) {
+        	randomRun = Boolean.parseBoolean(line.getOptionValue(randomData));
         }
         
         

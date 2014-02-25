@@ -60,6 +60,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 	
 	private String name;
 	
+	private String interactionType;
+	
 	private double score;
 
 	public Network() {
@@ -73,6 +75,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 		nodeMap = new HashMap<String, Node>();
 		nodeTable = new NodeTable();
 		name = "";
+		interactionType = "";
 		score = 0.0;
 		neighborsMap = null;
 	}
@@ -102,6 +105,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 	
 	public void setName(String networkName) {
 		name = networkName;
+	}
+	
+	public String getInteractionType() {
+		return interactionType;
+	}
+	
+	public void setInteractionType(String interaction) {
+		interactionType = interaction;
 	}
 	
 	public double getScore() {

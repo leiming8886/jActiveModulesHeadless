@@ -56,7 +56,7 @@ public class NodeTable {
 		Random rand = new Random();
 		
 		for (int l=size;l>0;l--){
-	        k = rand.nextInt()%l;//random number between 0 and l(excluded).
+	        k = Math.abs(rand.nextInt())%l;//random number between 0 and l(excluded).
 
 	        
 	        if (k!=(l-1)){//exchange node row [k] and node row [l-1] in nMap.
