@@ -92,8 +92,7 @@ public class PropertyReader  {
 	private void readLocalModifications(String propFileName) throws Exception {
 		InputStream is = null;
 		try {
-			final File configDir = new File(propFileName); 
-	        final File localPropsFile = new File(configDir,propFileName);
+	        final File localPropsFile = new File(propFileName);
 
 			if (localPropsFile.exists()) {
 				is = new FileInputStream(localPropsFile);
