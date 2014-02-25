@@ -58,7 +58,7 @@ public class SifWriter  {
 		}
 	}
 
-	public void writeSif() throws Exception {
+	public void writeSif(String delimiter) throws Exception {
 		
 
 		System.out.println("Encoding = " + encoder.charset());
@@ -94,9 +94,9 @@ public class SifWriter  {
 							throw new IllegalStateException("This network contains null or empty node name.");
 
 						writer.write(sourceName);
-						writer.write("\t");
+						writer.write(delimiter);
 						writer.write(interactionName);
-						writer.write("\t");
+						writer.write(delimiter);
 						writer.write(targetName);
 						writer.write(lineSep);
 					}

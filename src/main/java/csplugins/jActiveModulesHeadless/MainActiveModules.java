@@ -106,6 +106,7 @@ public class MainActiveModules {
 			File file = new File(netFile);
 			if(file.exists())
 			{
+				System.out.println("Loading network from file...");
 				inputNetwork = netReader.readNetwork(file,readDelimiter);
 				if(inputNetwork == null)
 				{
@@ -113,6 +114,7 @@ public class MainActiveModules {
 					return;
 				}
 				apfParams.setNetwork(inputNetwork);
+				System.out.println("Network loaded...");
 			}
 		}
 		else
@@ -123,7 +125,7 @@ public class MainActiveModules {
 		
 		if(!dataFile.isEmpty())
 		{
-			
+			System.out.println("Loading data from file...");
 			File file = new File(dataFile);
 			if(file.exists())
 				dataSize = dataReader.readData(inputNetwork, file,readDelimiter);
@@ -133,6 +135,7 @@ public class MainActiveModules {
 				System.out.println("[ERROR] Data file does not contain any data");
 				return;
 			}
+			System.out.println("Data loaded...");
 		}
 		else
 		{
@@ -176,7 +179,7 @@ public class MainActiveModules {
 			try {
 				outStream2 = new FileOutputStream(cleanedNetwork);
 				writer = new SifWriter(outStream2, inputNetwork);	
-				writer.writeSif();
+				writer.writeSif(readDelimiter);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -234,7 +237,7 @@ public class MainActiveModules {
 				writer = new SifWriter(outStream[i], subnetworks[i]);
 				
 				
-				writer.writeSif();
+				writer.writeSif(readDelimiter);
 				
 				if(i==0)
 				{
