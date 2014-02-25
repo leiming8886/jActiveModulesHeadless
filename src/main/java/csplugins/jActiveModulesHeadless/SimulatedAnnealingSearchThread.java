@@ -79,7 +79,7 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 		while(it.hasNext()){
 		    Component comp = (Component)it.next();
 		    Vector compNodes = comp.getNodes();
-		    System.out.println("components sizes: " + compNodes.size() + " score: " + comp.score);
+		    //System.out.println("components sizes: " + compNodes.size() + " score: " + comp.score);
 		    for(int i=0;i<compNodes.size();i++){
 			node2component.put(compNodes.get(i),comp);
 		    }
