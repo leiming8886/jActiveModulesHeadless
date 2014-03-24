@@ -54,6 +54,9 @@ public class ActivePathFinderParameters {
     boolean randomizeExpression = false;
     String outputFile = "output.txt";
     int sizeExpressionAttrs = 0;
+    int samplingIterationSize = 100;
+    String samplingTestFile = "sampling.txt";
+    boolean doSampleTest = false;
     	
     List<Boolean> switchSigs = new ArrayList<Boolean>();
     List<String> scalingMethods = new ArrayList<String>();
@@ -104,11 +107,20 @@ public class ActivePathFinderParameters {
 		else if(name.endsWith("quench")){
 		    toQuench = Boolean.valueOf(property);
 		}
+		else if(name.endsWith("doSampleTest")){
+			doSampleTest = Boolean.valueOf(property);
+		}
 		else if(name.endsWith("mcBoolean")){
 		    mcBoolean = Boolean.valueOf(property);
 		}
 		else if(name.endsWith("mcFileName")){
 		    mcFileName = property;
+		}
+		else if(name.endsWith("samplingTestFile")){
+			samplingTestFile = property;
+		}
+		else if(name.endsWith("samplingIterationSize")){
+			samplingIterationSize = Integer.valueOf(property);
 		}
 		else if(name.endsWith("regional")){
 		    regionalBoolean = Boolean.valueOf(property);
@@ -274,6 +286,12 @@ public class ActivePathFinderParameters {
 		regionalBoolean = newValue;
 		this.isDefault = false;
 	}
+	public boolean getDoSampleTestBoolean() {
+		return doSampleTest;
+	}
+	public void setDoSampleTestBoolean(boolean newValue) {
+		doSampleTest = newValue;
+	}
 	public boolean getToUseMCFile() {
 		return toUseMCFile;
 	}
@@ -294,6 +312,12 @@ public class ActivePathFinderParameters {
 	public void setMcFileName(String newValue) {
 		mcFileName = newValue;
 		this.isDefault = false;
+	}
+	public String getSamplingTestFile() {
+		return samplingTestFile;
+	}
+	public void setSamplingTestFile(String newValue) {
+		samplingTestFile = newValue;
 	}
 	public double getInitialTemperature() {
 		return initialTemperature;
@@ -324,6 +348,13 @@ public class ActivePathFinderParameters {
     public void setRandomIterations(int value) {
 	this.randomIterations = value;
 	    }
+    public int getSamplingIterationsSize() {
+    	return samplingIterationSize;
+        }
+
+    public void setSamplingIterationsSize(int value) {
+    	this.samplingIterationSize = value;
+    }
 	public int getTotalIterations() {
 		return totalIterations;
 	}

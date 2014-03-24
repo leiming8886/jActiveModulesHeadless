@@ -3,6 +3,9 @@ package csplugins.jActiveModulesHeadless;
 
 import csplugins.jActiveModulesHeadless.networkUtils.*;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +18,8 @@ import java.util.ArrayList;
 import csplugins.jActiveModulesHeadless.data.ActivePathFinderParameters;
 
 public class SimulatedAnnealingSearchThread extends SearchThread {
+	
+	private FileWriter fw;
    
 	//MyProgressMonitor progress;
     public SimulatedAnnealingSearchThread(Network graph, Vector resultPaths, Node [] nodes, ActivePathFinderParameters apfParams )
@@ -22,6 +27,7 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 		super(graph,resultPaths,nodes,apfParams);
 		//this.progress = progress;
 		super.nodeSet = new HashSet(graph.getNodeList());
+		fw = null;
     }
 
     /**
@@ -88,11 +94,14 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 		//this starts the simulated annealing loop. The temperature
 		//step is set so that we will get to the final temperature
 		//after the total number of iterations.
-		
+		boolean sampleTest = apfParams.getDoSampleTestBoolean();
+		int samplingRate = apfParams.getSamplingIterationsSize();
 		//int display_step = Math.max(1,apfParams.getTotalIterations()/ActivePathsFinder.UPDATE_COUNT);
 		int display_step = ActivePathsFinder.DISPLAY_STEP;
 		while(timeout < apfParams.getTotalIterations())
 		{
+			if(sampleTest && timeout%samplingRate == 0)
+				sampleResults(timeout+1);
 			//System.out.println("first path num nodes: " + ((Component)oldPaths.lastElement()).getNodes().size());
 		    timeout++;
 		    System.out.println("Annealing Running iteration " + timeout);
@@ -204,7 +213,45 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 		    }
 		    
 		}
+		if(sampleTest)
+			sampleResults(apfParams.getTotalIterations());
+			
 		resultPaths.addAll(oldPaths);
 		System.out.println("End annealing shearch thread");
     }
+	
+	
+	void sampleResults(int iteration)
+	{
+		String fileName = apfParams.getSamplingTestFile();
+		double bestScore =  ((Component)oldPaths.firstElement()).score;
+		
+		String results = iteration + "\t" + bestScore + "\n";
+		
+		
+		File outFile = new File (fileName);
+		
+		try {
+			if(fw == null)
+			{
+				outFile.getParentFile().mkdirs();
+				FileWriter fw = new FileWriter(outFile,true);
+				fw.write(results);
+				fw.flush();
+			}
+			else
+			{
+					fw.write(results);
+					fw.flush();
+					if(iteration == apfParams.getTotalIterations())
+						fw.close();
+				
+			}
+		
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 }

@@ -53,6 +53,7 @@ public class MainActiveModules {
 	static String delimiter = "";
 	static String outputFileName = "";
 	static boolean randomRun = false;
+	static String sampleFile = "";
 	
 	public static void main(String[] args) {
 
@@ -83,6 +84,9 @@ public class MainActiveModules {
 		
 		
 		apfParams = new ActivePathFinderParameters(paramFile);
+		
+		if(!sampleFile.isEmpty())
+			apfParams.setSamplingTestFile(sampleFile);
 		
 		if(delimiter.isEmpty())
 			readDelimiter = ReadDelimiter.getStringDelimiter(ReadDelimiter.SPACE.toString());
@@ -348,6 +352,13 @@ public class MainActiveModules {
                 .hasArg()
                 .withDescription("Use a random permutation of data, default: false")
                 .create(randomData);
+        String samplingFile = "sf";
+        name = "samplingTestFile";
+        Option sampleOpt = OptionBuilder.withArgName(name)
+                .withLongOpt(name)
+                .hasArg()
+                .withDescription("The complete path and file name to store sampling test data")
+                .create(samplingFile);
         
 
         String help = "help";
@@ -360,6 +371,7 @@ public class MainActiveModules {
         options.addOption(deliOpt);
         options.addOption(outFileOpt);
         options.addOption(randomOpt);
+        options.addOption(sampleOpt);
         
 
         options.addOption(helpOpt);
@@ -383,6 +395,7 @@ public class MainActiveModules {
         }
         if (line.hasOption(pfile)) {
             paramFile = line.getOptionValue(pfile);
+            System.out.println("param file "+ paramFile);
         }
         if (line.hasOption(outDir)) {
         	outputDir = line.getOptionValue(outDir);
@@ -395,6 +408,10 @@ public class MainActiveModules {
         }
         if (line.hasOption(randomData)) {
         	randomRun = Boolean.parseBoolean(line.getOptionValue(randomData));
+        }
+        if (line.hasOption(samplingFile)) {
+        	sampleFile = line.getOptionValue(samplingFile);
+        	System.out.println("sample file "+ sampleFile);
         }
         
         
