@@ -104,13 +104,14 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 		int display_step = ActivePathsFinder.DISPLAY_STEP;
 		while(timeout < apfParams.getTotalIterations())
 		{
-			if(sampleTest && timeout%samplingRate == 0)
+			if( timeout%samplingRate == 0)
 			{
 				freeMem = runtime.freeMemory();
 	    		totalMem = runtime.totalMemory();
 	            usedMem = totalMem - freeMem;
 				System.out.println("Annealing Running iteration " + timeout + " mem usage: " + usedMem);
-				sampleResults(timeout+1);
+				if(sampleTest )
+					sampleResults(timeout+1);
 			}
 			//System.out.println("first path num nodes: " + ((Component)oldPaths.lastElement()).getNodes().size());
 		    timeout++;
