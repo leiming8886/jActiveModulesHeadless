@@ -2,6 +2,9 @@ package csplugins.jActiveModulesHeadless;
 
 import csplugins.jActiveModulesHeadless.networkUtils.*;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -10,6 +13,8 @@ import java.util.Vector;
 import csplugins.jActiveModulesHeadless.data.ActivePathFinderParameters;
 
 public class QuenchingSearchThread extends SearchThread{
+	
+	private FileWriter fw;
 	
     public QuenchingSearchThread(Network graph, Vector resultPaths, Node [] nodes, ActivePathFinderParameters apfParams, SortedVector oldPaths)
     {
@@ -48,6 +53,7 @@ public class QuenchingSearchThread extends SearchThread{
 		//what node are we now toggling
 		int count = 0;
 		int iteration = 1;
+		int basicIteration = apfParams.getTotalIterations();
 			
 		//here we are creating the hashmap which maps from nodes to their
 		//respective components. It is important (and sometimes tricky) to 
@@ -63,6 +69,8 @@ public class QuenchingSearchThread extends SearchThread{
 			node2component.put(compNodes.get(i),comp);
 		    }
 		}
+		
+		cf = new ComponentFinder(graph,nodeSet);
 	
 		System.out.println("Start Quenching iteration: " + iteration);
 		
@@ -146,6 +154,7 @@ public class QuenchingSearchThread extends SearchThread{
 				    //an improved score
 				    improved = false;
 				    count = 0;
+				    sampleResults(basicIteration + iteration);
 				    iteration++;
 				    System.out.println("Start Quenching iteration: " + iteration);
 				}
@@ -154,6 +163,40 @@ public class QuenchingSearchThread extends SearchThread{
 		    
 		}
 		resultPaths.addAll(oldPaths);
+		
+	}
+	
+	void sampleResults(int iteration)
+	{
+		String fileName = apfParams.getSamplingTestFile();
+		double bestScore =  ((Component)oldPaths.firstElement()).score;
+		
+		String results = iteration + "\t" + bestScore + "\n";
+		
+		
+		File outFile = new File (fileName);
+		
+		try {
+			if(fw == null)
+			{
+				outFile.getParentFile().mkdirs();
+				FileWriter fw = new FileWriter(outFile,true);
+				fw.write(results);
+				fw.flush();
+			}
+			else
+			{
+					fw.write(results);
+					fw.flush();
+					if(iteration == apfParams.getTotalIterations())
+						fw.close();
+				
+			}
+		
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 }

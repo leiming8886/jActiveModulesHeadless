@@ -201,6 +201,7 @@ public class MainActiveModules {
 			inputNetwork.getNodeTable().randomizeTable();
 		}
 
+		System.out.println("Input network with " + inputNetwork.getNodeCount() + " nodes and " + inputNetwork.getEdgeCount() + " edges");
 		activePaths = new ActivePaths(inputNetwork, apfParams);
 
 		activePaths.run();

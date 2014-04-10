@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -196,6 +197,28 @@ public class ActivePathsFinder {
 
 				System.out.println("Trying to save monte carlo state");
 				try {
+					/*FileOutputStream temp = new FileOutputStream("zscores.txt");
+					String lineSep = System.getProperty("line.separator");
+					OutputStreamWriter writer = new OutputStreamWriter(temp,"UTF-8");
+					for(Node node  : network.getAllNodes())
+					{
+						writer.write(node.getName());
+						writer.write(" ");
+						writer.write(Double.valueOf(((double [])expressionMap.get(node))[0]).toString());
+						writer.write(lineSep);
+						writer.flush();
+					}
+					for(int i=0;i < network.getNodeCount();i++)
+					{
+						writer.write(Integer.valueOf(i).toString());
+						writer.write(" ");
+						writer.write(Double.valueOf(Component.pStats.getMean(i+1)).toString());
+						writer.write(" ");
+						writer.write(Double.valueOf(Component.pStats.getStd(i+1)).toString());
+						writer.write(lineSep);
+						writer.flush();
+					}
+					temp.close();*/
 					FileOutputStream fos = new FileOutputStream("last.mc");
 					ObjectOutputStream oos = new ObjectOutputStream(fos);
 					oos.writeObject(Component.pStats);

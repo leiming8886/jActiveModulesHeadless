@@ -18,6 +18,7 @@ public abstract class SearchThread  { //extends Thread{
   protected Vector resultPaths;
   protected Vector hiddenNodes;
   protected HashSet nodeSet;
+  protected ComponentFinder cf;
   //protected HashMap node2edges;
   protected Node [] nodes;
   protected HashMap node2component;
@@ -25,7 +26,6 @@ public abstract class SearchThread  { //extends Thread{
   public SearchThread(Network graph, Vector resultPaths,Node [] nodes, ActivePathFinderParameters apfParams){
     this.graph = graph;
     this.resultPaths = resultPaths;
-    //this.node2edges = node2edges;
     this.nodes = nodes;
     this.apfParams = apfParams;
     hiddenNodes = new Vector();
@@ -164,7 +164,7 @@ public abstract class SearchThread  { //extends Thread{
     //in this set of nodes, keep in mind the special
     //case that this could be empty
 	
-    ComponentFinder cf = new ComponentFinder(graph,nodeSet);
+    cf.setValidNodes(nodeSet);
     Vector newComponents = cf.getComponents(oldNodes);
 	
 	

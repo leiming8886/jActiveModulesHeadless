@@ -39,6 +39,10 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 	public void run() {
 
 		int timeout = 0;//current number of iterations
+		long freeMem ;
+		long totalMem;
+	    long usedMem ;
+	    final Runtime runtime;
 		double T = apfParams.getInitialTemperature();
 		double temp_step = 1 - Math.pow((apfParams.getFinalTemperature()/apfParams.getInitialTemperature()),(1.0/apfParams.getTotalIterations()));
 		Random rand = new Random(apfParams.getRandomSeed());
@@ -46,7 +50,7 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 		//to the old ActivePaths
 		oldPaths = new SortedVector();
 		
-	       
+		runtime = Runtime.getRuntime();
 		boolean hubFinding = apfParams.getMinHubSize() > 0;
 		if(hubFinding){
 		    System.out.println("Using hub finding: "+apfParams.getMinHubSize());
@@ -64,7 +68,7 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 		}
 	
 		//NodeList [] components = GraphConnectivity.connectedComponents(graph);
-		ComponentFinder cf = new ComponentFinder(graph,nodeSet);
+		cf = new ComponentFinder(graph,nodeSet);
 		//Vector components = cf.getComponents(new Vector(graph.getNodeList()));
 	
 		//why is a new vector being creater here?
@@ -101,10 +105,16 @@ public class SimulatedAnnealingSearchThread extends SearchThread {
 		while(timeout < apfParams.getTotalIterations())
 		{
 			if(sampleTest && timeout%samplingRate == 0)
+			{
+				freeMem = runtime.freeMemory();
+	    		totalMem = runtime.totalMemory();
+	            usedMem = totalMem - freeMem;
+				System.out.println("Annealing Running iteration " + timeout + " mem usage: " + usedMem);
 				sampleResults(timeout+1);
+			}
 			//System.out.println("first path num nodes: " + ((Component)oldPaths.lastElement()).getNodes().size());
 		    timeout++;
-		    System.out.println("Annealing Running iteration " + timeout);
+		   
 	//	    if(progress != null && timeout%display_step == 0){
 	//		progress.update();
 	//	    }

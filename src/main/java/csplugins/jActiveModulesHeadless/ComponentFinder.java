@@ -42,8 +42,14 @@ public class ComponentFinder{
   public ComponentFinder(Network g,HashSet valid){
     graph = g;
     this.valid = valid;
+    reached = new HashSet(g.getNodeCount());
   }
 
+  public void setValidNodes(HashSet valid)
+  {
+	  //this.valid.clear();
+	  this.valid = valid;
+  }
   /**
    * Return a vector of components reachable from these nodes.
    * @param nodes The nodes which we base our search off of
@@ -61,7 +67,8 @@ public class ComponentFinder{
       done = true;
     }
     //Iterator it = nodes.iterator();
-    reached = new HashSet(2*nodes.size());
+    //reached = new HashSet(nodes.size());
+    reached.clear();
     //while there are nodes that we haven't seen in our search yet
     while(!done){
 	    //make a new list
@@ -87,6 +94,7 @@ public class ComponentFinder{
 	    	done = true;
 	    }
     }
+    reached.clear();
     return result;
   }
 
