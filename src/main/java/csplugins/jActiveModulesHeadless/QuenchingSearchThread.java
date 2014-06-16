@@ -54,6 +54,7 @@ public class QuenchingSearchThread extends SearchThread{
 		int count = 0;
 		int iteration = 1;
 		int basicIteration = apfParams.getTotalIterations();
+		boolean sampleTest = apfParams.getDoSampleTestBoolean();
 			
 		//here we are creating the hashmap which maps from nodes to their
 		//respective components. It is important (and sometimes tricky) to 
@@ -154,7 +155,8 @@ public class QuenchingSearchThread extends SearchThread{
 				    //an improved score
 				    improved = false;
 				    count = 0;
-				    sampleResults(basicIteration + iteration);
+				    if(sampleTest )
+				    	sampleResults(basicIteration + iteration);
 				    iteration++;
 				    System.out.println("Start Quenching iteration: " + iteration);
 				}
