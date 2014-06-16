@@ -275,47 +275,45 @@ class MeanAndStdThread extends Thread{
     boolean done = false;
     
     synchronized (nodes){
-      if(current_trials < total_trials){
-	current_trials++;
-	
-      }
-      else{
-	done = true;
-      }
+      if(current_trials < total_trials)
+    	  current_trials++;
+      else
+    	  done = true;
+      
     }
     
-    while(!done){
+    while(!done)
+    {
       Collections.shuffle(nodeList,rand);
       Component comp = new Component();
       Iterator it = nodeList.iterator();
       int i = 0;
-      while(it.hasNext()){
-	comp.addNode((Node)it.next());
-	double score = comp.calculateSimpleScore();
-	tallyx[i] += score;
-	tallyx_2[i] += score*score;
-	i++;
+      while(it.hasNext())
+      {
+    	  comp.addNode((Node)it.next());
+    	  double score = comp.calculateSimpleScore();
+    	  tallyx[i] += score;
+    	  tallyx_2[i] += score*score;
+    	  i++;
       }
 	    
       synchronized (nodes){
-	if(current_trials < total_trials){
-	  current_trials++;
-	  
-	}
-	else{
-	  done = true;
-	}
+    	  if(current_trials < total_trials)
+    		  current_trials++;
+    	  else
+    		  done = true;
+	
       }
     }
     synchronized (overall_tallyx){
-      for(int j=0;j<nodes.length;j++){
-	overall_tallyx[j] += tallyx[j];
-      }
+      for(int j=0;j<nodes.length;j++)
+    	  overall_tallyx[j] += tallyx[j];
+      
     }
     synchronized (overall_tallyx_2){
-      for(int j=0;j<nodes.length;j++){
-	overall_tallyx_2[j] += tallyx_2[j];
-      }
+      for(int j=0;j<nodes.length;j++)
+    	  overall_tallyx_2[j] += tallyx_2[j];
+      
     }
 
   }
