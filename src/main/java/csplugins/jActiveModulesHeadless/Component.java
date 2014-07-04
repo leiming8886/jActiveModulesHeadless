@@ -494,6 +494,9 @@ public class Component implements Comparable{
     double simple_score;
     //keep track of how many conditions we have looked at
     min_i = attrNamesLength;
+    
+    //if(zSumsSort.length == 1)
+    //	return zSumOverSqrt;
     //even the max zscore sum is pretty bad, screw it
     if(zSumOverSqrt < threshhold)
     {

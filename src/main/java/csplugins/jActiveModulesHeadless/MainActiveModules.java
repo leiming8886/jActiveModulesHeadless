@@ -12,6 +12,7 @@ import java.util.*;
 import org.apache.commons.cli.*;
 import csplugins.jActiveModulesHeadless.data.*;
 import csplugins.jActiveModulesHeadless.networkUtils.*;
+import csplugins.jActiveModulesHeadless.tests.*;
 
 public class MainActiveModules {
 	
@@ -54,6 +55,7 @@ public class MainActiveModules {
 	static String outputFileName = "";
 	static boolean randomRun = false;
 	static String sampleFile = "";
+	static int altOption = -1;
 	
 	public static void main(String[] args) {
 
@@ -167,6 +169,15 @@ public class MainActiveModules {
 			e.printStackTrace();
 		}*/
 		
+		if(altOption >0)
+		{
+			apfParams.setNetwork(inputNetwork);
+			apfParams.setSizeExpressionAttributes(dataSize);
+			MainTests mainTest = new MainTests(inputNetwork,apfParams,altOption, outputDir,readDelimiter);
+			mainTest.main();
+			return;
+		}
+			
 		if(!removeNodes.isEmpty())
 		{
 			System.out.println("[WARNING] There are " + removeNodes.size() + " nodes that will be removed from the network because there is no data for those networks");
@@ -199,6 +210,17 @@ public class MainActiveModules {
 		{
 			System.out.println("Permuting network data...");
 			inputNetwork.getNodeTable().randomizeTable();
+			NodeTable table = inputNetwork.getNodeTable();
+			
+			Random rn = new Random();
+			
+			for(Row row : table.getAllRows())
+			{
+				for(int i=0; i < row.getDataSize() ; i++)
+				{
+					row.setDataColumn(i, rn.nextDouble());
+				}
+			}
 		}
 
 		System.out.println("Input network with " + inputNetwork.getNodeCount() + " nodes and " + inputNetwork.getEdgeCount() + " edges");
@@ -361,6 +383,15 @@ public class MainActiveModules {
                 .withDescription("The complete path and file name to store sampling test data")
                 .create(samplingFile);
         
+        String alternative = "t";
+        name = "testOption";
+        Option testOpt = OptionBuilder.withArgName(name)
+                .withLongOpt(name)
+                .hasArg()
+                .withDescription("Define test option to be used on this application: \n" +
+                		"1 (Score distribution calculation) | 2 (Independent score distribution calculation) | 3 (calculate number of possible subnetworks) | 4 (Create a subnetwork of size X from input network)")
+                .create(alternative);
+        
 
         String help = "help";
         Option helpOpt = new Option(help, false, "Display this help and exit");
@@ -373,6 +404,7 @@ public class MainActiveModules {
         options.addOption(outFileOpt);
         options.addOption(randomOpt);
         options.addOption(sampleOpt);
+        options.addOption(testOpt);
         
 
         options.addOption(helpOpt);
@@ -409,6 +441,9 @@ public class MainActiveModules {
         }
         if (line.hasOption(randomData)) {
         	randomRun = Boolean.parseBoolean(line.getOptionValue(randomData));
+        }
+        if (line.hasOption(alternative)) {
+        	altOption = Integer.parseInt(line.getOptionValue(alternative));
         }
         if (line.hasOption(samplingFile)) {
         	sampleFile = line.getOptionValue(samplingFile);

@@ -52,8 +52,10 @@ public class ActivePathFinderParameters {
     boolean run = false;
     boolean save = false;
     boolean randomizeExpression = false;
+    boolean startFromTail=false;
     String outputFile = "output.txt";
     int sizeExpressionAttrs = 0;
+    int subnetworkSize=50;
     int samplingIterationSize = 100;
     String samplingTestFile = "sampling.txt";
     boolean doSampleTest = false;
@@ -112,6 +114,12 @@ public class ActivePathFinderParameters {
 		}
 		else if(name.endsWith("mcBoolean")){
 		    mcBoolean = Boolean.valueOf(property);
+		}
+		else if(name.endsWith("startFromTail")){
+		    startFromTail = Boolean.valueOf(property);
+		}
+		else if(name.endsWith("subnetworkSize")){
+		    subnetworkSize = Integer.valueOf(property);
 		}
 		else if(name.endsWith("mcFileName")){
 		    mcFileName = property;
@@ -294,6 +302,12 @@ public class ActivePathFinderParameters {
 	}
 	public boolean getToUseMCFile() {
 		return toUseMCFile;
+	}
+	public boolean getStartFromTail() {
+		return startFromTail;
+	}
+	public int getSubnetworkSize() {
+		return subnetworkSize;
 	}
 	public void setToUseMCFile(boolean newValue) {
 		toUseMCFile = newValue;

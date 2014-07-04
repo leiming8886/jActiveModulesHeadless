@@ -202,7 +202,11 @@ public class ActivePaths  {
 		}		
 		return false;
 	}
-	
+	public Network[] createSubnetworks(Component[] components) {
+		activePaths = components;
+		
+		return createSubnetworks();
+	}
 	
 	public Network[] createSubnetworks() {
 		//Network[] subnetworks = new Network[activePaths.length];
@@ -265,13 +269,13 @@ public class ActivePaths  {
 		return activePaths[0];
 	}
 
-	protected HashMap generateExpressionMap() {
+	public HashMap generateExpressionMap() {
 		// set up the HashMap which is used to map from nodes
 		// to z values. At this point, we are mapping from the
 		// p values for expression to z values
-		System.out.println("Processing Expression Data into Hash");
+		//System.out.println("Processing Expression Data into Hash");
 		HashMap tempHash = new HashMap();
-		System.out.println("Do some testing of the ExpressionData object");
+		//System.out.println("Do some testing of the ExpressionData object");
 		NodeTable nodeAttributes = this.network.getNodeTable();
 
 		// Create two identical lists of genes
@@ -344,7 +348,7 @@ public class ActivePaths  {
 			}
 			tempHash.put(current, tempArray);
 		}
-		System.out.println("Done processing into Hash");
+		//System.out.println("Done processing into Hash");
 		return tempHash;
 	}
 
