@@ -20,17 +20,16 @@ import javax.swing.JMenuBar;
 
 
 
+
 import csplugins.jActiveModulesHeadless.data.ActivePathFinderParameters;
 import csplugins.jActiveModulesHeadless.*;
 //import csplugins.jActiveModules.util.Scaler;
 import csplugins.jActiveModulesHeadless.util.ScalerFactory;
-
 import csplugins.jActiveModulesHeadless.networkUtils.*;
 
 import java.util.Collection;
 //import java.io.File;
 import java.io.OutputStreamWriter;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -71,9 +70,10 @@ public class ScoreTests  {
 
 		attrNamesLength = apfParams.getSizeExpressionAttributes();
 		
-		if (attrNamesLength == 0) {
+		/*if (attrNamesLength == 0) {
 			throw new RuntimeException("No expression data selected!");
-		}
+		}*/
+		
 		this.network = Network;
 		
 		rn = new Random();
@@ -81,6 +81,25 @@ public class ScoreTests  {
 		
 		activePaths = new ActivePaths(Network, apfParams);
 	}
+	// ATTENTION: this constructor can only use the methods where apfParams isn't needed!(such as isConnected for instance)
+	public ScoreTests(Network Network) {
+		this.apfParams = null;
+
+
+		if (Network == null || Network.getNodeCount() == 0) {
+			throw new IllegalArgumentException("Please select a network");
+		}
+
+		
+		
+		this.network = Network;
+		
+		rn = new Random();
+		
+		
+		activePaths =null;
+	}
+
 	// ----------------------------------------------------------------
 	public ScoreTests(Network Network, ActivePathFinderParameters apfParams, int size) {
 		this.apfParams = apfParams;
@@ -89,12 +108,13 @@ public class ScoreTests  {
 		if (Network == null || Network.getNodeCount() == 0) {
 			throw new IllegalArgumentException("Please select a network");
 		}
+		
 
 		attrNamesLength = apfParams.getSizeExpressionAttributes();
 		
-		if (attrNamesLength == 0) {
+		/*if (attrNamesLength == 0) {
 			throw new RuntimeException("No expression data selected!");
-		}
+		}*/
 		this.network = Network;
 		
 		rn = new Random();
@@ -194,10 +214,32 @@ public class ScoreTests  {
 			listOfNodes = getNextLevelSubnetworks(listOfNodes);
 			// findSubnetworks(i);
 			System.out.println("Number of Subnetworks of size " + i + ": " + listOfNodes.size());
+			//TODO:create an option savenetworks. False by default, can be set to true when launching programme.
+			//if (savenetworks)
+				//saveNetworks(listOfNodes, i);
 		}
 		
 	}
-	
+	/*public void saveNetworks(Set<Set<Node>> listOfiNodes, int i){
+		File outiNodeNetworksFile = new File (outputDir,"NetworksOfSize" + i+".sif");
+		FileOutputStream outStream = null;
+		SifWriter writer = null;
+		
+		try {
+			outStream = new FileOutputStream(outiNodeNetworksFile);
+			for (Set<Node> j : listOfiNodes){
+				for (Node k :j)
+				//TODO:I can't use SifWriter, since it takes a network as parameter and not a node. I have to write a program "interaction writer"
+				writer = new SifWriter(outStream, k);
+			}
+			writer.writeSif(readDelimiter);
+		
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+		
+	}*/
 	public Network[] generateSubnetwork(int size)
 	{
 		Component[] components = new Component[1];
@@ -303,37 +345,73 @@ public class ScoreTests  {
 		
 		return listOfNodes;
 	}
+	public boolean isConnected(Set<Node> nodes)
+	   {
+	       boolean isCon = false;
+	       Set<Node> visited = new HashSet<Node>();
+	       LinkedList<Node> toVisit = new LinkedList<Node>();
+	       Set<Node> notAllowed = new HashSet<Node>();
+	       List<Node> list ;
+	       notAllowed.addAll(network.getAllNodes());
+	       notAllowed.removeAll(nodes);
+
+	       toVisit.add(nodes.iterator().next());
+
+	       while(!toVisit.isEmpty())
+	       {
+	           Node node = toVisit.remove();
+	           if(!visited.contains(node))
+	           {
+	               list = network.getNeighborList(node);
+	               visited.add(node);
+	               for( Node nodeTemp : list)
+	               {
+	                   if(!notAllowed.contains(nodeTemp))
+	                       toVisit.add(nodeTemp);
+	               }
+
+	           }
+	       }
+
+	       if(visited.size() == nodes.size())
+	           isCon = true;
+
+	       return isCon;
+	   }
 	
-	private boolean isConnected(Set<Node> nodes)
-	{
-		boolean isCon = false;
-		Set<Node> visited = new HashSet<Node>();
-		LinkedList<Node> toVisit = new LinkedList<Node>();
-		Set<Node> notAllowed = new HashSet<Node>();
-		List<Node> list = new ArrayList<Node>();
-		notAllowed.addAll(network.getAllNodes());
-		notAllowed.removeAll(nodes);
-		
-		toVisit.add(nodes.iterator().next());
-		
-	    while(!toVisit.isEmpty()) 
-		{
-			Node node = toVisit.remove();
-			if(!visited.contains(node))
-			{
-				list.clear();
-				visited.add(node);
-				list.addAll(network.getNeighborList(node));
-				list.removeAll(notAllowed);
-				toVisit.addAll(list);
-			}
-		}
-		
-		if(visited.size() == nodes.size())
-			isCon = true;
-		
-		return isCon;
-	}
+	public boolean isConnected(Node[] nodes)
+	   {
+	       boolean isCon = false;
+	       Set<Node> visited = new HashSet<Node>();
+	       LinkedList<Node> toVisit = new LinkedList<Node>();
+	       Set<Node> allowed = new HashSet<Node>();
+	       List<Node> list ;
+	       for(int i =0 ; i < nodes.length ; i++)
+	           allowed.add(nodes[i]);
+
+	       toVisit.add(nodes[0]);
+
+	       while(!toVisit.isEmpty())
+	       {
+	           Node node = toVisit.remove();
+	           if(!visited.contains(node))
+	           {
+	               list = network.getNeighborList(node);
+	               visited.add(node);
+	               for( Node nodeTemp : list)
+	               {
+	                   if(allowed.contains(nodeTemp))
+	                       toVisit.add(nodeTemp);
+	               }
+
+	           }
+	       }
+
+	       if(visited.size() == nodes.length)
+	           isCon = true;
+
+	       return isCon;
+	   }
 	
 	public double getBestScore()
 	{
