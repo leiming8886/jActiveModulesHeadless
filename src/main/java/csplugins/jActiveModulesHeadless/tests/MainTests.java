@@ -85,16 +85,54 @@ public class MainTests  {
 	{
 
 		if(option == 1 || option == 2)
-			generateScoreDistribution();
+			generateMaxScoreDistribution();
 		
 		if(option == 3)
 			countSubnetworks();
 		
 		if(option == 4)
 			createSubnetwork();
+		if(option == 5)
+			generateAllMaxScoreDistribution();
+		
+		if(option == 6)
+			generateScoreDistribution();
 	}
 	
 	private void generateScoreDistribution()
+	{
+		ScoreTests tests;
+		List<Double> scores = new ArrayList<Double>() ;
+		String lineSep = System.getProperty("line.separator");
+		File outFile = new File (outputDir,"scoreDistribution.txt");
+		tests = new ScoreTests(network,apfParams,5);
+		for(int i =0;i<100;i++)
+		{
+			tests.setRandomPValues();
+			scores.addAll(tests.getAllScores());
+		}
+		
+		FileOutputStream outputStream = null;
+		OutputStreamWriter outWriter = null;
+		try {
+			outputStream = new FileOutputStream(outFile);
+			outWriter = new OutputStreamWriter(outputStream, "UTF-8");
+			for(int i = 0;i<scores.size();i++)
+			{
+				outWriter.write(scores.get(i).toString());
+				outWriter.write(lineSep);
+				outWriter.flush();
+			}
+			outWriter.close();
+			outputStream.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private void generateMaxScoreDistribution()
 	{
 		ScoreTests tests;
 		int size = apfParams.getSamplingIterationsSize();
@@ -176,6 +214,64 @@ public class MainTests  {
 			outWriter.close();
 			outputStream.close();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private void generateAllMaxScoreDistribution()
+	{
+		ScoreTests tests;
+		int size = apfParams.getSamplingIterationsSize();
+		ArrayList<ArrayList<Double>> scores = new ArrayList<ArrayList<Double>>();
+		String lineSep = System.getProperty("line.separator");
+		tests = new ScoreTests(network,apfParams);
+		int netSize = network.getNodeCount(); 
+		int length = 300;
+		System.out.println("start sampling");
+		
+		for(int i = 3; i< (netSize -1);i++)
+		{
+			ArrayList<Double> scores1 = new ArrayList<Double>();
+			tests.generateSampleSubnetworks(i, length);
+			System.out.println("Generate sample distribution of length " + length + " for subnetwork of size " + i );
+			for(int j = 0 ; j < size ; j++)
+			{
+				tests.setRandomPValues();
+				scores1.add(tests.getBestScore());
+			}
+			System.out.println("Generate sample distribution of length " + length + " for subnetwork of size " + i + " DONE");
+			if(i < (netSize/2+1))
+				length += 500;
+			else
+				length -= 530;
+			scores.add(scores1);
+			
+		}
+		
+		File outFile = new File (outputDir,"sampleAllScores.txt");
+		FileOutputStream outputStream = null;
+		OutputStreamWriter outWriter = null;
+		try {
+			outputStream = new FileOutputStream(outFile);
+		    
+			outWriter = new OutputStreamWriter(outputStream, "UTF-8");
+			for(int j =0 ; j< size; j++)
+			{
+				for(int i = 0;i<scores.size();i++)
+				{
+				
+					outWriter.write(scores.get(i).get(j).toString());
+					outWriter.write(readDelimiter);
+					
+				}
+				outWriter.write(lineSep);
+				outWriter.flush();
+			}
+			outWriter.close();
+			outputStream.close();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
