@@ -8,10 +8,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import java.util.*;
 
-
 import org.apache.commons.cli.*;
+
 import csplugins.jActiveModulesHeadless.data.*;
 import csplugins.jActiveModulesHeadless.networkUtils.*;
+import csplugins.jActiveModulesHeadless.subnetSampling.MetropolisHastingsSampling;
 import csplugins.jActiveModulesHeadless.tests.*;
 
 public class MainActiveModules {
@@ -56,6 +57,8 @@ public class MainActiveModules {
 	static boolean randomRun = false;
 	static String sampleFile = "";
 	static int altOption = -1;
+	static int MHSsamples=-1;
+	
 	
 	public static void main(String[] args) {
 
@@ -127,8 +130,74 @@ public class MainActiveModules {
 			System.out.println("[WARNING] No network file defined. The algorithm can not proceed without a network.");
 
 		if(inputNetwork == null)
+			{System.out.println("[ERROR] Network is empty");
 			return;
+			}
 		
+		//adding code for sampling here because network already stocked into memory
+		if (MHSsamples!=-1){
+			Node[] sampleKNodeSubnet;
+			File MHSsamplesFile = new File (outputDir,"jActiveModules_MHSsamples.txt");
+			FileWriter fwMHS = null;
+			try {
+				fwMHS = new FileWriter (MHSsamplesFile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			for(int i = 0; i < MHSsamples; i = i+1) {
+		         System.out.println("Starting to compute k-node subnetwork : " + i );
+		         
+		         System.out.println("SampledSubnetSize, getTBurnout: " + apfParams.getSampledSubnetSize() +", "+ apfParams.getTBurnout());
+		         MetropolisHastingsSampling MHSampling=new MetropolisHastingsSampling(inputNetwork, apfParams);
+		         System.out.println("Hey line 153");
+		         sampleKNodeSubnet = MHSampling.SampleknodeSubnet(apfParams.getSampledSubnetSize(),apfParams.getTBurnout(), inputNetwork);
+		         System.out.println("Hey line 155");
+		         //TODO:writing header line for subnetwork
+		         if (fwMHS!=null){
+						try{ 
+							fwMHS.write("> Subnetwork number "+i+"\n");
+							fwMHS.flush();
+							
+							
+							
+						}
+						catch (IOException e){
+							e.printStackTrace();	
+						}
+					}
+		        
+		         for (Node node :sampleKNodeSubnet){
+		        	 System.out.println("Hey node:"+node.getName() + node);
+		        	 //TODO:write 1 node per line
+		        	 try {
+						fwMHS.write(node.getName() + "\n");
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		        	 
+		         }
+		         try {
+					fwMHS.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
+		      }
+			try {
+				fwMHS.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+		return;
+		}
+		//end of addition for sampling
 		if(!dataFile.isEmpty())
 		{
 			System.out.println("Loading data from file...");
@@ -392,6 +461,18 @@ public class MainActiveModules {
                 		"1 (Score distribution calculation) | 2 (Independent score distribution calculation) | 3 (calculate number of possible subnetworks) | 4 (Create a subnetwork of size X from input network)")
                 .create(alternative);
         
+        //creating option to call sampling
+        String MHSsampling = "MHS";
+        name = "MHSsampling";
+        Option MHSsamplingOpt = OptionBuilder.withArgName(name)
+                .withLongOpt(name)
+                .hasArg()
+                .withDescription("Does Metropolis Hastings Sampling withs parameters indicated in jActive parameters file.")
+                .create(MHSsampling);
+        
+        		
+        		
+        
 
         String help = "help";
         Option helpOpt = new Option(help, false, "Display this help and exit");
@@ -405,6 +486,7 @@ public class MainActiveModules {
         options.addOption(randomOpt);
         options.addOption(sampleOpt);
         options.addOption(testOpt);
+        options.addOption(MHSsamplingOpt);
         
 
         options.addOption(helpOpt);
@@ -449,7 +531,10 @@ public class MainActiveModules {
         	sampleFile = line.getOptionValue(samplingFile);
         	System.out.println("sample file "+ sampleFile);
         }
-        
+        if  (line.hasOption(MHSsampling)) {
+        	MHSsamples =Integer.parseInt (line.getOptionValue(MHSsampling));
+        	System.out.println("sampling with metropolis hastings ");
+        }
         
     }
 	

@@ -28,7 +28,6 @@ import csplugins.jActiveModulesHeadless.util.ScalerFactory;
 import csplugins.jActiveModulesHeadless.networkUtils.*;
 
 import java.util.Collection;
-import java.util.concurrent.ThreadPoolExecutor;
 //import java.io.File;
 import java.io.OutputStreamWriter;
 
@@ -72,9 +71,10 @@ public class ScoreTests  {
 
 		attrNamesLength = apfParams.getSizeExpressionAttributes();
 		
-		if (attrNamesLength == 0) {
+		/*if (attrNamesLength == 0) {
 			throw new RuntimeException("No expression data selected!");
-		}
+		}*/
+		
 		this.network = Network;
 		
 		rn = new Random();
@@ -82,6 +82,25 @@ public class ScoreTests  {
 		
 		activePaths = new ActivePaths(Network, apfParams);
 	}
+	// ATTENTION: this constructor can only use the methods where apfParams isn't needed!(such as isConnected for instance)
+	public ScoreTests(Network Network) {
+		this.apfParams = null;
+
+
+		if (Network == null || Network.getNodeCount() == 0) {
+			throw new IllegalArgumentException("Please select a network");
+		}
+
+		
+		
+		this.network = Network;
+		
+		rn = new Random();
+		
+		
+		activePaths =null;
+	}
+
 	// ----------------------------------------------------------------
 	public ScoreTests(Network Network, ActivePathFinderParameters apfParams, int size) {
 		this.apfParams = apfParams;
@@ -90,12 +109,13 @@ public class ScoreTests  {
 		if (Network == null || Network.getNodeCount() == 0) {
 			throw new IllegalArgumentException("Please select a network");
 		}
+		
 
 		attrNamesLength = apfParams.getSizeExpressionAttributes();
 		
-		if (attrNamesLength == 0) {
+		/*if (attrNamesLength == 0) {
 			throw new RuntimeException("No expression data selected!");
-		}
+		}*/
 		this.network = Network;
 		
 		rn = new Random();
@@ -174,19 +194,8 @@ public class ScoreTests  {
 	
 	public void getSubNetworkSizes(int range)
 	{
-		//Set<Set<Node>> listOfNodes = new HashSet<Set<Node>>();
-		Set<Long> listOfNodes = new HashSet<Long>();
-		Set<Set<Node>> listOfNodes2 = new HashSet<Set<Node>>();
+		Set<Set<Node>> listOfNodes = new HashSet<Set<Node>>();
 		Set<Node> tempSet = new HashSet<Node>();
-		Map<Node,Integer> nodes = new HashMap<Node,Integer>(network.getNodeList().size());//network.getNodeList();
-		Node[] nodesReverse = network.getNodeList().toArray(new Node[0]);
-		Long temp, zeroLong = new Long(0);
-		int i =0;
-		Integer nodesIndex[] = new Integer[2];
-		
-		for(i = 0; i< nodesReverse.length ; i++)
-			nodes.put(nodesReverse[i], i);
-			
 		
 		System.out.println("Number of Subnetworks of size 1: " + network.getNodeCount());
 		
@@ -197,36 +206,46 @@ public class ScoreTests  {
 			tempSet = new HashSet<Node>();
 			tempSet.add(edge.getSource());
 			tempSet.add(edge.getTarget());
-			listOfNodes2.add(tempSet);
-			/*temp = new Long(0);
-			nodesIndex[0] = nodes.get(edge.getSource());
-			nodesIndex[1] = nodes.get(edge.getTarget());
-			Arrays.sort(nodesIndex);
-			for(i = 1; i<= 2 ; i++)
-				temp = temp | ((long) nodesIndex[i-1] << (16*(2-i)));
-			
-			
-			listOfNodes.add(temp);*/
-			listOfNodes2.add(tempSet);
-			
+			listOfNodes.add(tempSet);
 		}
-		System.out.println("Number of Subnetworks of size 2: " + listOfNodes2.size());
 		
-		for(i = 3 ; i <= range ; i++)
+		for(int i = 3 ; i <= range ; i++)
 		{
 			
-			//listOfNodes = getSubnets(listOfNodes,i,nodes,nodesReverse);
-			listOfNodes2 = getNextLevelSubnetworks(listOfNodes2);
+			listOfNodes = getNextLevelSubnetworks(listOfNodes);
 			// findSubnetworks(i);
-			System.out.println("Number of Subnetworks of size " + i + ": " + listOfNodes2.size());
+			System.out.println("Number of Subnetworks of size " + i + ": " + listOfNodes.size());
+			//TODO:create an option savenetworks. False by default, can be set to true when launching programme.
+			//if (savenetworks)
+				//saveNetworks(listOfNodes, i);
 		}
 		
 	}
-	
+	/*public void saveNetworks(Set<Set<Node>> listOfiNodes, int i){
+		File outiNodeNetworksFile = new File (outputDir,"NetworksOfSize" + i+".sif");
+		FileOutputStream outStream = null;
+		SifWriter writer = null;
+		
+		try {
+			outStream = new FileOutputStream(outiNodeNetworksFile);
+			for (Set<Node> j : listOfiNodes){
+				for (Node k :j)
+				//TODO:I can't use SifWriter, since it takes a network as parameter and not a node. I have to write a program "interaction writer"
+				writer = new SifWriter(outStream, k);
+			}
+			writer.writeSif(readDelimiter);
+		
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+		
+	}*/
 	public Network[] generateSubnetwork(int size)
 	{
 		Component[] components = new Component[1];
 		List<Node> nodes = network.getNodeList();
+		Set<Node> visited = new HashSet<Node>();
 		LinkedList<Node> toVisit = new LinkedList<Node>();
 		
 		Set<Node> subnodes = new HashSet<Node>();
@@ -252,53 +271,6 @@ public class ScoreTests  {
 		return activePaths.createSubnetworks(components);
 	}
 	
-	public void addSubnetwork(Node node, Set<Set<Node>> list, int size)
-	{
-		LinkedList<Node> toVisit = new LinkedList<Node>();
-		Set<Node> subnodes = new HashSet<Node>();
-		
-		toVisit.add(node);
-		
-		while(!toVisit.isEmpty() && subnodes.size() < size) 
-		{
-			Node temp = toVisit.remove();
-			
-			if(!subnodes.contains(temp)  )
-			{
-				subnodes.add(temp);
-				
-				if(list.contains(subnodes))
-				{
-					subnodes.remove(temp);
-				}
-				else
-				{
-					List<Node> tempList = network.getNeighborList(temp);
-					Collections.shuffle(tempList);
-					toVisit.addAll(tempList);
-				}
-			}
-		}
-		
-		if(subnodes.size() == size)
-			list.add(subnodes);
-	}
-	
-	
-	public void generateSampleSubnetworks(int size, int length)
-	{
-		Set<Set<Node>> sample = new HashSet<Set<Node>>();
-		List<Node> nodes = network.getNodeList();
-		
-		while(sample.size() < length)
-		{
-			//System.out.println("size samples: " + sample.size());
-			addSubnetwork(nodes.get(rn.nextInt(nodes.size())),sample,size);
-		}
-		
-		subnetworks = sample;
-	}
-	
 	public void getSubNetworkSizesDown(int range)
 	{
 		Set<Set<Node>> listOfNodes = new HashSet<Set<Node>>();		
@@ -322,18 +294,11 @@ public class ScoreTests  {
 		Set<Set<Node>> listOfNodes = new HashSet<Set<Node>>();
 		Set<Node> neighboors = new HashSet<Node>();
 		Set<Node> newSet ;
-		Integer iteration = 0;
 		
 		int size = oldList.size();
-		MyMonitorScoreThread monitor = new MyMonitorScoreThread(listOfNodes,iteration,10);
-		
-		Thread monitorThread = new Thread(monitor);
-        monitorThread.start();
 		//System.out.println("original size: " + size);
 		for(Set<Node> oldSet : oldList)
 		{
-			iteration++;
-			monitor.setIter(iteration);
 			neighboors.clear();
 			for(Node node : oldSet)
 			{
@@ -349,73 +314,8 @@ public class ScoreTests  {
 				listOfNodes.add(newSet);
 			}
 		}
-		monitor.shutdown();
+		
 		return listOfNodes;
-	}
-	
-	protected Set<Long> getSubnets(Set<Long> oldList, int size,Map<Node,Integer> nodes, Node[] nodesReverse)
-	{
-		Set<Long> listOfSubnets = new HashSet<Long>();
-		Set<Node> neighboors = new HashSet<Node>();
-		Set<Node> set = new HashSet<Node>();
-		Integer nodesIndex[] = new Integer[size];
-		Integer nodesIndexTemp[] = new Integer[size];
-		Long temp, zeroLong = new Long(0);
-		int i,t;
-		Integer iteration = 0;
-		long input;
-		//size--;
-
-		MyMonitorScoreThread monitor = new MyMonitorScoreThread(listOfSubnets,iteration,10);
-		
-		Thread monitorThread = new Thread(monitor);
-        monitorThread.start();
-		
-		for(Long oldSet : oldList)
-		{
-			iteration++;
-			monitor.setIter(iteration);
-			neighboors.clear();
-			//nodesIndex.clear();
-			set.clear();
-			for(int j = 0; j< (size-1); j++)
-			{
-				input = (oldSet & ((long) (0xffff << (j*16))));
-				//nodesIndex.add( (int) (temp >> (j*16)));
-				set.add(nodesReverse[ ((int) (input >> (j*16))) & 0xffff]);
-			}
-			t = 0;
-			//System.out.println("set size: " + set.size());
-			for(Node node : set)
-			{
-				
-				nodesIndexTemp[t] = nodes.get(node);
-				neighboors.addAll(network.getNeighborList(node));
-				t++;
-			}
-			neighboors.removeAll(set);
-			
-				
-			//System.out.println("neightboors: " + neighboors.size() + " element: " + size--);
-			for(Node newNode : neighboors)
-			{
-				temp = zeroLong;
-				
-				for(i=0; i< (size-1);i++)
-					nodesIndex[i] = nodesIndexTemp[i];
-				
-				nodesIndex[size -1] = nodes.get(newNode);
-				Arrays.sort(nodesIndex);
-				for(i =1 ; i<= size ; i++)
-					temp = temp | ((long) nodesIndex[i-1] << (16*(size-i)));
-				
-				//nodesIndex.remove((Integer)nodes.get(newNode));
-				listOfSubnets.add(temp);
-			}
-		}
-		oldList.clear();
-		monitor.shutdown();
-		return listOfSubnets;
 	}
 	
 	protected Set<Set<Node>> getNextLevelSubnetworksDown(Set<Set<Node>> oldList)
@@ -446,76 +346,73 @@ public class ScoreTests  {
 		
 		return listOfNodes;
 	}
+	public boolean isConnected(Set<Node> nodes)
+	   {
+	       boolean isCon = false;
+	       Set<Node> visited = new HashSet<Node>();
+	       LinkedList<Node> toVisit = new LinkedList<Node>();
+	       Set<Node> notAllowed = new HashSet<Node>();
+	       List<Node> list ;
+	       notAllowed.addAll(network.getAllNodes());
+	       notAllowed.removeAll(nodes);
+
+	       toVisit.add(nodes.iterator().next());
+
+	       while(!toVisit.isEmpty())
+	       {
+	           Node node = toVisit.remove();
+	           if(!visited.contains(node))
+	           {
+	               list = network.getNeighborList(node);
+	               visited.add(node);
+	               for( Node nodeTemp : list)
+	               {
+	                   if(!notAllowed.contains(nodeTemp))
+	                       toVisit.add(nodeTemp);
+	               }
+
+	           }
+	       }
+
+	       if(visited.size() == nodes.size())
+	           isCon = true;
+
+	       return isCon;
+	   }
 	
-	private boolean isConnected(Set<Node> nodes)
-	{
-		boolean isCon = false;
-		Set<Node> visited = new HashSet<Node>();
-		LinkedList<Node> toVisit = new LinkedList<Node>();
-		Set<Node> notAllowed = new HashSet<Node>();
-		List<Node> list ;
-		notAllowed.addAll(network.getAllNodes());
-		notAllowed.removeAll(nodes);
-		
-		toVisit.add(nodes.iterator().next());
-		
-	    while(!toVisit.isEmpty()) 
-		{
-			Node node = toVisit.remove();
-			if(!visited.contains(node))
-			{
-				list = network.getNeighborList(node);
-				visited.add(node);
-				for( Node nodeTemp : list)
-				{
-					if(!notAllowed.contains(nodeTemp))
-						toVisit.add(nodeTemp);
-				}
-				//list.removeAll(notAllowed);
-				//toVisit.addAll(list);
-			}
-		}
-		
-		if(visited.size() == nodes.size())
-			isCon = true;
-		
-		return isCon;
-	}
-	
-	private boolean isConnected(Node[] nodes)
-	{
-		boolean isCon = false;
-		Set<Node> visited = new HashSet<Node>();
-		LinkedList<Node> toVisit = new LinkedList<Node>();
-		Set<Node> allowed = new HashSet<Node>();
-		List<Node> list ;
-		for(int i =0 ; i < nodes.length ; i++)
-			allowed.add(nodes[i]);
-		
-		toVisit.add(nodes[0]);
-		
-	    while(!toVisit.isEmpty()) 
-		{
-			Node node = toVisit.remove();
-			if(!visited.contains(node))
-			{
-				list = network.getNeighborList(node);
-				visited.add(node);
-				for( Node nodeTemp : list)
-				{
-					if(allowed.contains(nodeTemp))
-						toVisit.add(nodeTemp);
-				}
-				//list.removeAll(notAllowed);
-				//toVisit.addAll(list);
-			}
-		}
-		
-		if(visited.size() == nodes.length)
-			isCon = true;
-		
-		return isCon;
-	}
+	public boolean isConnected(Node[] nodes)
+	   {
+	       boolean isCon = false;
+	       Set<Node> visited = new HashSet<Node>();
+	       LinkedList<Node> toVisit = new LinkedList<Node>();
+	       Set<Node> allowed = new HashSet<Node>();
+	       List<Node> list ;
+	       for(int i =0 ; i < nodes.length ; i++)
+	           allowed.add(nodes[i]);
+
+	       toVisit.add(nodes[0]);
+
+	       while(!toVisit.isEmpty())
+	       {
+	           Node node = toVisit.remove();
+	           if(!visited.contains(node))
+	           {
+	               list = network.getNeighborList(node);
+	               visited.add(node);
+	               for( Node nodeTemp : list)
+	               {
+	                   if(allowed.contains(nodeTemp))
+	                       toVisit.add(nodeTemp);
+	               }
+
+	           }
+	       }
+
+	       if(visited.size() == nodes.length)
+	           isCon = true;
+
+	       return isCon;
+	   }
 	
 	public double getBestScore()
 	{
@@ -534,22 +431,6 @@ public class ScoreTests  {
 		}
 		
 		return best;
-	}
-	
-	public List<Double> getAllScores()
-	{
-		ArrayList<Double> scores = new ArrayList<Double>();
-		
-		Component tempComp;
-		
-		
-		for(Set<Node> nodes : subnetworks)
-		{
-			tempComp = new Component(Arrays.asList(nodes.toArray()));
-			scores.add(tempComp.getScore());
-		}
-		
-		return scores;
 	}
 	
 	public double getBestScoreWithIndependency()
@@ -747,61 +628,6 @@ public class ScoreTests  {
 
 	
 	
-	
-	public class MyMonitorScoreThread implements Runnable
-	{
-	    
-	     
-	    private int seconds;
-	     
-	    private boolean run=true;
-	    private Set listOfSubnets;
-	    final Runtime runtime;
-		long freeMem ;
-		long totalMem;
-	    long usedMem ;
-		long maxMem ;
-		double usedMemFraction ;
-		Integer iteration;
-	 
-	    public MyMonitorScoreThread(Set listOfSubnets, Integer iteration, int delay)
-	    {
-	    	this.listOfSubnets = listOfSubnets;
-	    	runtime = Runtime.getRuntime();
-	        this.seconds=delay*60;
-	        this.iteration = iteration;
-	    }
-	     
-	    public void setIter(int iter)
-	    {
-	    	iteration =  iter;
-	    }
-	    public void shutdown(){
-	        this.run=false;
-	    }
-	 
-	    @Override
-	    public void run()
-	    {
-	        while(run){
-	        	freeMem = runtime.freeMemory();
-	    		totalMem = runtime.totalMemory();
-	            usedMem = totalMem - freeMem;
-	    		maxMem = runtime.maxMemory();
-	    		usedMemFraction = usedMem / (double) maxMem;
-	        	
-	                System.out.println("subnets found: " + listOfSubnets.size() + " Memory Usage: " + usedMem + 
-	                		" Set usage: " + listOfSubnets.size()*8 + " No set usage: " + (usedMem - listOfSubnets.size()*8) + " Iter: " +iteration );
-	                System.gc();
-	                try {
-	                    Thread.sleep(seconds*1000);
-	                } catch (InterruptedException e) {
-	                    e.printStackTrace();
-	                }
-	        }
-	             
-	    }
-	}
 	
 	
 	

@@ -6,3 +6,8 @@ AP.maxDepth=2
 AP.regional=false
 AP.randomSeed=445454
 AP.hubSize=300
+
+
+AP.sampledSubnetSize=4
+AP.tBurnout=5
+AP.numSampledSubnets=3
