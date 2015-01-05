@@ -57,7 +57,7 @@ public class MetropolisHastingsSampling {
 	
 		
 	@SuppressWarnings("unchecked")
-	private void deleteNode (Node nodeToDel, @SuppressWarnings("rawtypes") BalancedOrderStatisticTree gNeighbors, Node[]arrayG, Map<Node,Integer> nOccurCounter){
+	private void deleteNode (Node nodeToDel, @SuppressWarnings("rawtypes") BalancedOrderStatisticTree gNeighbors, Node[]arrayG, Map<Node,Integer> nOccurCounter) throws Exception{
 		System.out.println ("----Deleting from array the node " +nodeToDel+"----");
 		if (nodeToDel==null){
 			System.out.println("Error in deleteNode. nodeToDel is null:"+nodeToDel);
@@ -69,8 +69,9 @@ public class MetropolisHastingsSampling {
 			// substract -1 to the counter in map for node or delete it
 			Integer v= nOccurCounter.get(neighbor);
 			if ((v==null)||(v<=0)){
-				System.out.println("Error: the node "+ neighbor+"doesn't exist in the neighbors' hashmap or has a negative occurances count.");
-				return;
+				System.out.println();
+				throw new Exception ("Exception: the node "+ neighbor+"doesn't exist in the neighbors' hashmap or has a negative occurances count.");
+				
 				}
 			else if(v==1){
 				//System.out.println (" gNeighbors is (toString): "+gNeighbors.toString());
@@ -80,7 +81,7 @@ public class MetropolisHastingsSampling {
 				gNeighbors.remove(neighbor);
 				//System.out.println ("after delete neighbor"+neighbor+" " +neighbor.getName());
 				//System.out.println (" gNeighbors is (toString): "+gNeighbors.toString());
-				
+				 nOccurCounter.remove(neighbor);
 				
 				}
 			else{
@@ -215,14 +216,18 @@ public class MetropolisHastingsSampling {
 		System.out.println("Hey graph1created");
 		
 //Initialisation finished.
-		return SampleknodeSubnet ( k, t, network, arrayG, nOccurCounter, gNeighbors);
+		try{return SampleknodeSubnet ( k, t, network, arrayG, nOccurCounter, gNeighbors);}
+		catch (Exception e){
+			System.out.println(e);
+			return null;
+		}
 	}
 	
 	
 	
 	
 	@SuppressWarnings({ "rawtypes" })
-	private Node[] SampleknodeSubnet (int k, int t, Network network, Node[] arrayG, Map<Node,Integer> nOccurCounter, BalancedOrderStatisticTree gNeighbors){
+	private Node[] SampleknodeSubnet (int k, int t, Network network, Node[] arrayG, Map<Node,Integer> nOccurCounter, BalancedOrderStatisticTree gNeighbors) throws Exception{
 		int numNeighborsOfOldG=	gNeighbors.size();
 		// starting the burnout counter:
 		ScoreTests ST=new ScoreTests(network);
@@ -236,17 +241,24 @@ public class MetropolisHastingsSampling {
 			while (!isConnected){
 				arrayGindex = randInt(0,k-1);
 				nodeToDel=arrayG[arrayGindex];
-				deleteNode (nodeToDel,  gNeighbors,  arrayG, nOccurCounter);
 				nodeToAdd=whichNodeToAdd(gNeighbors, arrayG);
-				addNode(nodeToAdd, gNeighbors, arrayG, nOccurCounter);
-				
+				arrayG[arrayGindex]=nodeToAdd;
 				isConnected=ST.isConnected(arrayG);
-				
-				System.out.println("When node" +nodeToDel+ "deleted, isConnected is"+ isConnected );
+				System.out.println("When node" +nodeToDel+ "deleted, and node "+nodeToAdd+"added in subgraph, isConnected is"+ isConnected );
+				//returning to the array before adding or deleting any node:
+				arrayG[arrayGindex]=nodeToDel;
+			}
+			System.out.println("nodeToDel:"+nodeToDel);
+			try{
+			    deleteNode (nodeToDel,  gNeighbors,  arrayG, nOccurCounter);
+			    }
+			catch (Exception e){
+				throw new Exception(e);
 				
 			}
+			addNode(nodeToAdd, gNeighbors, arrayG, nOccurCounter);
 			
-			System.out.println("nodeToDel:"+nodeToDel);
+			
 			
 			
 			
@@ -261,7 +273,13 @@ public class MetropolisHastingsSampling {
 				System.out.println("g is going back to old");
         		
         		//deleting NodeToAdd
-        		deleteNode(nodeToAdd, gNeighbors, arrayG, nOccurCounter);
+        		try{
+        			deleteNode(nodeToAdd, gNeighbors, arrayG, nOccurCounter);
+        		}
+        		catch (Exception e){
+        			throw new Exception(e);
+				
+        		}
         		//adding NodeToDel
         		addNode(nodeToDel, gNeighbors, arrayG, nOccurCounter);
         		
