@@ -20,16 +20,17 @@ import javax.swing.JMenuBar;
 
 
 
-
 import csplugins.jActiveModulesHeadless.data.ActivePathFinderParameters;
 import csplugins.jActiveModulesHeadless.*;
 //import csplugins.jActiveModules.util.Scaler;
 import csplugins.jActiveModulesHeadless.util.ScalerFactory;
+
 import csplugins.jActiveModulesHeadless.networkUtils.*;
 
 import java.util.Collection;
 //import java.io.File;
 import java.io.OutputStreamWriter;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -270,6 +271,38 @@ public class ScoreTests  {
 		return activePaths.createSubnetworks(components);
 	}
 	
+	public void addSubnetwork(Node node, Set<Set<Node>> list, int size)
+	{
+		LinkedList<Node> toVisit = new LinkedList<Node>();
+		Set<Node> subnodes = new HashSet<Node>();
+		
+		toVisit.add(node);
+		
+		while(!toVisit.isEmpty() && subnodes.size() < size) 
+		{
+			Node temp = toVisit.remove();
+			
+			if(!subnodes.contains(temp)  )
+			{
+				subnodes.add(temp);
+				
+				if(list.contains(subnodes))
+				{
+					subnodes.remove(temp);
+				}
+				else
+				{
+					List<Node> tempList = network.getNeighborList(temp);
+					Collections.shuffle(tempList);
+					toVisit.addAll(tempList);
+				}
+			}
+		}
+		
+		if(subnodes.size() == size)
+			list.add(subnodes);
+	}
+	
 	public void getSubNetworkSizesDown(int range)
 	{
 		Set<Set<Node>> listOfNodes = new HashSet<Set<Node>>();		
@@ -430,6 +463,36 @@ public class ScoreTests  {
 		}
 		
 		return best;
+	}
+	
+	public void generateSampleSubnetworks(int size, int length)
+	{
+		Set<Set<Node>> sample = new HashSet<Set<Node>>();
+		List<Node> nodes = network.getNodeList();
+		
+		while(sample.size() < length)
+		{
+			//System.out.println("size samples: " + sample.size());
+			addSubnetwork(nodes.get(rn.nextInt(nodes.size())),sample,size);
+		}
+		
+		subnetworks = sample;
+	}
+	
+	public List<Double> getAllScores()
+	{
+		ArrayList<Double> scores = new ArrayList<Double>();
+		
+		Component tempComp;
+		
+		
+		for(Set<Node> nodes : subnetworks)
+		{
+			tempComp = new Component(Arrays.asList(nodes.toArray()));
+			scores.add(tempComp.getScore());
+		}
+		
+		return scores;
 	}
 	
 	public double getBestScoreWithIndependency()
