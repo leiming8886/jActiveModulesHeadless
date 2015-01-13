@@ -16,6 +16,16 @@ public class MetropolisHastingsSampling {
 	ActivePathFinderParameters apfParams;
 	private int arrayGindex=0;
 	
+	public class subNetAndNeighSize {
+		
+			  public int neighborsSize=0;
+			  public Node[]arraySubnet=null;
+
+			  public subNetAndNeighSize (Node[]arraySubnet, int neighborsSize) {
+			    this.neighborsSize = neighborsSize;
+			    this.arraySubnet = arraySubnet;
+			  }
+			}
 	
 	
 	public MetropolisHastingsSampling(Network Network, ActivePathFinderParameters apfParams) {
@@ -74,14 +84,28 @@ public class MetropolisHastingsSampling {
 				
 				}
 			else if(v==1){
-				//System.out.println (" gNeighbors is (toString): "+gNeighbors.toString());
+				
 				System.out.println ("before deleting neighbor"+neighbor+" " +neighbor.getName());
 				
 				
 				gNeighbors.remove(neighbor);
 				//System.out.println ("after delete neighbor"+neighbor+" " +neighbor.getName());
 				//System.out.println (" gNeighbors is (toString): "+gNeighbors.toString());
-				 nOccurCounter.remove(neighbor);
+				 boolean inG=false;
+				 for (Node n:arrayG){
+					if (n==neighbor) {inG=true;break;}
+				 }
+					if (!inG) {
+						nOccurCounter.remove(neighbor);
+						System.out.println ("after deleting neighbor from nOccurCounter"+neighbor+" " +neighbor.getName());
+						
+					}
+					else {
+						nOccurCounter.put(neighbor, 0);
+						System.out.println ("after putting count to 0 for neighbor from nOccurCounter"+neighbor+" " +neighbor.getName());
+					}
+					
+				 
 				
 				}
 			else{
@@ -113,13 +137,14 @@ public class MetropolisHastingsSampling {
 			Integer v= nOccurCounter.get(neighbor);
 			if (v==null){
 				nOccurCounter.put(neighbor,1);
-				System.out.println("Inserting neighbor"+ neighbor+" "+neighbor.getName());
+				
 				gNeighbors.add(neighbor);
-				//System.out.println("Hey after insert neighbor");
+				System.out.println("Inserting neighbor"+ neighbor+" "+neighbor.getName());
 				
 				}
 			else{
 				   nOccurCounter.put(neighbor, v+1);
+				   System.out.println("Incrementing in nOccurCounter neighbor"+ neighbor+" "+neighbor.getName());
 				   }
 		}
 		
@@ -138,14 +163,17 @@ public class MetropolisHastingsSampling {
 	private Node whichNodeToAdd(@SuppressWarnings("rawtypes") BalancedOrderStatisticTree gNeighbors, Node[] arrayG){
 		
 		Node nodeToAdd=null;
+		boolean inG=true;
 		
 		if (gNeighbors.size()<=0){
+			//TODO:THROW EXCEPTION
 			System.out.println ("Error during initialisation of g: The graph g seems to not have any neighbors. "
 					+ "The counter of neighbors is equal to: "+gNeighbors.size()+ ". g is:");
 					arrayG.toString();
 			return null;
 			}
 		else {
+			while (inG){
 			
 			
 			
@@ -153,26 +181,47 @@ public class MetropolisHastingsSampling {
 				int nodeIndex = randInt(0,gNeighbors.size()-1);
 				
 				nodeToAdd= (Node)gNeighbors.select(nodeIndex);
+				inG=false;
+				for (Node n:arrayG)
+				{
+					if (n==nodeToAdd) {inG=true;break;}
+				}
 									
-	
+			}
 				return nodeToAdd;
 		}
 	}
 	
 	/** Implementation of Metropolis Hastings algorithm to sample one subnetwork of sike k, using t as the burn-in period
+	 * @return 
 	**/
-	public Node[] SampleknodeSubnet (int k, int t, Network network){
+	public  subNetAndNeighSize SampleknodeSubnet (int k, int t, Network network, Node[] initialSubgraph)throws Exception{
 		
 		System.out.println("Entering SampleknodeSubnet");
-		final List<Node> nodeList = network.getNodeList();
 		
-		//We need to take an element of nodelist.
+		boolean initialSubgraphIsGiven=true;
 		
+		for (Node n : initialSubgraph) {
+		  if (n == null) {
+			  initialSubgraphIsGiven = false;
+		    break;
+		  }
+		}
 		
-		int nodeIndex = randInt(0, nodeList.size()-1);
-		Node nodeToAdd=nodeList.get(nodeIndex);
+		Node nodeToAdd=null;
 		
-		System.out.println("seedNode:"+nodeToAdd);
+		//chosing a seedNode
+		if (!initialSubgraphIsGiven){
+			final List<Node> nodeList = network.getNodeList();
+			
+			//We need to take an element of nodelist.
+			
+			
+			int nodeIndex = randInt(0, nodeList.size()-1);
+			nodeToAdd=nodeList.get(nodeIndex);
+			
+			System.out.println("seedNode:"+nodeToAdd);
+		}
 
 		//creating a first subgraph: we take  a random seednode , compute the neighbors of this graph, add neighbor+ compute its neighbors and so on until right quantity of nodes added to g.
 		
@@ -193,12 +242,15 @@ public class MetropolisHastingsSampling {
 		
 		while (arrayGindex < k){
 			//searching for next node to add
-			if (!seedNode){
-
-				nodeToAdd=whichNodeToAdd(gNeighbors, arrayG);
+			if (initialSubgraphIsGiven){
+				nodeToAdd=initialSubgraph[arrayGindex];
+			}
+			else {
+				if (!seedNode){
+					nodeToAdd=whichNodeToAdd(gNeighbors, arrayG);
 				}
-			else seedNode=false;//in the next while we will not be dealing with seedNode any more
-			
+				else seedNode=false;//in the next while we will not be dealing with seedNode any more
+			}
 			
 			//adding node
 				addNode(nodeToAdd, gNeighbors, arrayG, nOccurCounter);
@@ -227,7 +279,7 @@ public class MetropolisHastingsSampling {
 	
 	
 	@SuppressWarnings({ "rawtypes" })
-	private Node[] SampleknodeSubnet (int k, int t, Network network, Node[] arrayG, Map<Node,Integer> nOccurCounter, BalancedOrderStatisticTree gNeighbors) throws Exception{
+	private subNetAndNeighSize SampleknodeSubnet (int k, int t, Network network, Node[] arrayG, Map<Node,Integer> nOccurCounter, BalancedOrderStatisticTree gNeighbors) throws Exception{
 		int numNeighborsOfOldG=	gNeighbors.size();
 		// starting the burnout counter:
 		ScoreTests ST=new ScoreTests(network);
@@ -268,8 +320,13 @@ public class MetropolisHastingsSampling {
 	        
 	       
 	        double alpha=Math.random();
-			if (numNeighborsOfOldG/gNeighbors.size() <alpha){
-        		//returning everything back to old:
+			if (alpha<gNeighbors.size()/numNeighborsOfOldG){
+				System.out.println("g has changed");
+        		        	}
+	        else{
+	        	
+	        	
+	        	//returning everything back to old:
 				System.out.println("g is going back to old");
         		
         		//deleting NodeToAdd
@@ -284,21 +341,16 @@ public class MetropolisHastingsSampling {
         		addNode(nodeToDel, gNeighbors, arrayG, nOccurCounter);
         		
         		System.out.println("g is back to old");
-        	}
-	        else{
-	        	System.out.println("g has changed");
+
 	        }
-			System.out.println ("g is:");
-					int i=0;
-					while ( i<arrayG.length){
-						System.out.println (arrayG[i]+ "  "+arrayG[i].getName());
-						i++;
-					};
+			
 	        
 			t = t-1;
 		}
-		System.out.println("Hey returning g");	
-		return arrayG;
+		System.out.println("Hey returning g");
+		System.out.println("Neighbors of g: "+gNeighbors.toString());
+		subNetAndNeighSize result=new subNetAndNeighSize(arrayG,gNeighbors.size());
+		return result;
 		
 	
 	}

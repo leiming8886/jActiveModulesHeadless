@@ -13,6 +13,7 @@ import org.apache.commons.cli.*;
 import csplugins.jActiveModulesHeadless.data.*;
 import csplugins.jActiveModulesHeadless.networkUtils.*;
 import csplugins.jActiveModulesHeadless.subnetSampling.MetropolisHastingsSampling;
+import csplugins.jActiveModulesHeadless.subnetSampling.MetropolisHastingsSampling.subNetAndNeighSize;
 import csplugins.jActiveModulesHeadless.tests.*;
 
 public class MainActiveModules {
@@ -134,31 +135,67 @@ public class MainActiveModules {
 			return;
 			}
 		
-		//adding code for sampling here because network already stocked into memory
+		//adding code for sampling here 
 		if (MHSsamples!=-1){
-			Node[] sampleKNodeSubnet;
+			subNetAndNeighSize sampleKNodeSubnet;
 			File MHSsamplesFile = new File (outputDir,"jActiveModules_MHSsamples.txt");
 			FileWriter fwMHS = null;
+			File MHSNeighborsofSamplesFile = new File (outputDir,"jActiveModules_MHSNeighborsofSamples.txt");
+			FileWriter fwMHS_N = null;
 			try {
 				fwMHS = new FileWriter (MHSsamplesFile);
+				fwMHS_N = new FileWriter (MHSNeighborsofSamplesFile);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			
-			for(int i = 0; i < MHSsamples; i = i+1) {
+			Node[] initialSubgraph=new Node[apfParams.getSampledSubnetSize()];//for Geweke diagnostics
+			for(int i = 1; i <= MHSsamples; i = i+1) {
 		         System.out.println("Starting to compute k-node subnetwork : " + i );
 		         
 		         System.out.println("SampledSubnetSize, getTBurnout: " + apfParams.getSampledSubnetSize() +", "+ apfParams.getTBurnout());
 		         MetropolisHastingsSampling MHSampling=new MetropolisHastingsSampling(inputNetwork, apfParams);
 		         System.out.println("Hey line 153");
-		         sampleKNodeSubnet = MHSampling.SampleknodeSubnet(apfParams.getSampledSubnetSize(),apfParams.getTBurnout(), inputNetwork);
+		         try{
+		         sampleKNodeSubnet = MHSampling.SampleknodeSubnet(apfParams.getSampledSubnetSize(),apfParams.getTBurnout(), inputNetwork, initialSubgraph);
+		         }
+		         catch (Exception e){
+		        	 e.printStackTrace();
+		        	 return;
+		        	 }
 		         System.out.println("Hey line 155");
-		         //TODO:writing header line for subnetwork
+		         
+		         //TODO: delete? : writing file with #Neighbors for Geweke diagnostics
+		         if (fwMHS_N!=null){
+						try{ 
+							
+							 //printing number of nodes, that are neighbors of the network printed below:
+							fwMHS_N.write(sampleKNodeSubnet.neighborsSize+"\n");
+			
+							
+							fwMHS_N.flush();
+							
+							
+							
+						}
+						catch (IOException e){
+							e.printStackTrace();	
+						}
+					}
+		         
+		         //for Geweke diagnostics
+		         initialSubgraph=sampleKNodeSubnet.arraySubnet.clone();
+		        
+		         
+		         
+		         //writing header line for subnetwork
 		         if (fwMHS!=null){
 						try{ 
 							fwMHS.write("> Subnetwork number "+i+"\n");
+							 //printing number of nodes, that are neighbors of the network printed below:
+							fwMHS.write("#Neighbors: "+sampleKNodeSubnet.neighborsSize+"\n");
+							
 							fwMHS.flush();
 							
 							
@@ -169,7 +206,9 @@ public class MainActiveModules {
 						}
 					}
 		        
-		         for (Node node :sampleKNodeSubnet){
+		        
+		         
+		         for (Node node :sampleKNodeSubnet.arraySubnet){
 		        	 System.out.println("Hey node:"+node.getName() + node);
 		        	 //TODO:write 1 node per line
 		        	 try {
@@ -189,6 +228,7 @@ public class MainActiveModules {
 		      }
 			try {
 				fwMHS.close();
+				fwMHS_N.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
