@@ -30,7 +30,7 @@ public class MetropolisHastingsSampling {
 	
 	public MetropolisHastingsSampling(Network Network, ActivePathFinderParameters apfParams) {
 		
-		System.out.println("Hey  MetropolisHastingsSampling constructor");
+		//System.out.println("Hey  MetropolisHastingsSampling constructor");
 		this.apfParams = apfParams;
 
 
@@ -329,10 +329,10 @@ public class MetropolisHastingsSampling {
 	        
 	       
 	        double alpha=Math.random();
-	        System.out.println("alpha:"+alpha+" gsize:"+gNeighbors.size()+" oldGsize:"+ numNeighborsOfOldG+"gsize/oldGsize: "+(double)((double)gNeighbors.size()/(double)numNeighborsOfOldG));
+	       // System.out.println("alpha:"+alpha+" gsize:"+gNeighbors.size()+" oldGsize:"+ numNeighborsOfOldG+"gsize/oldGsize: "+(double)((double)gNeighbors.size()/(double)numNeighborsOfOldG));
 			if (alpha<(double)((double)gNeighbors.size()/(double)numNeighborsOfOldG) ){
 				
-				System.out.println("g has changed");
+				//System.out.println("g has changed");
 				numNeighborsOfOldG=gNeighbors.size();
         		        	}
 	        else{
@@ -352,14 +352,14 @@ public class MetropolisHastingsSampling {
         		//adding NodeToDel
         		addNode(nodeToDel, gNeighbors, arrayG, nOccurCounter);
         		
-        		System.out.println("g is back to old");
+        		//System.out.println("g is back to old");
 
 	        }
 			
 	        
 			t = t-1;
 		}
-		System.out.println("Hey returning g");
+		//System.out.println("Hey returning g");
 		//System.out.println("Neighbors of g: "+gNeighbors.toString());
 		subNetAndNeighSize result=new subNetAndNeighSize(arrayG,gNeighbors.size());
 		return result;

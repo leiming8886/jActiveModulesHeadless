@@ -209,8 +209,8 @@ public class MainActiveModules {
 		        
 		         
 		         for (Node node :sampleKNodeSubnet.arraySubnet){
-		        	 System.out.println("Hey node:"+node.getName() + node);
-		        	 //TODO:write 1 node per line
+		        	// System.out.println("Hey node:"+node.getName() + node);
+		        	 
 		        	 try {
 						fwMHS.write(node.getName() + "\n");
 					} catch (IOException e) {
@@ -507,7 +507,7 @@ public class MainActiveModules {
         Option MHSsamplingOpt = OptionBuilder.withArgName(name)
                 .withLongOpt(name)
                 .hasArg()
-                .withDescription("Does Metropolis Hastings Sampling withs parameters indicated in jActive parameters file.")
+                .withDescription("Does Metropolis Hastings Sampling withs parameters indicated in jActive parameters file. Takes as argument the number of subnetworks to be computed")
                 .create(MHSsampling);
         
         		
