@@ -59,6 +59,7 @@ public class MainActiveModules {
 	static String sampleFile = "";
 	static int altOption = -1;
 	static int MHSsamples=-1;
+	static String MHSoutFile = "";
 	
 	
 	public static void main(String[] args) {
@@ -138,9 +139,9 @@ public class MainActiveModules {
 		//adding code for sampling here 
 		if (MHSsamples!=-1){
 			subNetAndNeighSize sampleKNodeSubnet;
-			File MHSsamplesFile = new File (outputDir,"jActiveModules_MHSsamples.txt");
+			File MHSsamplesFile = new File (outputDir,"jActiveModules_MHSsamples"+MHSoutFile+".txt");
 			FileWriter fwMHS = null;
-			File MHSNeighborsofSamplesFile = new File (outputDir,"jActiveModules_MHSNeighborsofSamples.txt");
+			File MHSNeighborsofSamplesFile = new File (outputDir,"jActiveModules_MHSNeighborsofSamples"+MHSoutFile+".txt");
 			FileWriter fwMHS_N = null;
 			try {
 				fwMHS = new FileWriter (MHSsamplesFile);
@@ -509,6 +510,14 @@ public class MainActiveModules {
                 .hasArg()
                 .withDescription("Does Metropolis Hastings Sampling withs parameters indicated in jActive parameters file. Takes as argument the number of subnetworks to be computed")
                 .create(MHSsampling);
+       //suffix of MHS output file 
+        String MHSoutf = "MHSoutf";
+        name = "MHSoutf";
+        Option MHSoutfOpt = OptionBuilder.withArgName(name)
+                .withLongOpt(name)
+                .hasArg()
+                .withDescription("Suffix of MHS output files")
+                .create(MHSoutf);
         
         		
         		
@@ -527,6 +536,7 @@ public class MainActiveModules {
         options.addOption(sampleOpt);
         options.addOption(testOpt);
         options.addOption(MHSsamplingOpt);
+        options.addOption(MHSoutfOpt);
         
 
         options.addOption(helpOpt);
@@ -574,6 +584,10 @@ public class MainActiveModules {
         if  (line.hasOption(MHSsampling)) {
         	MHSsamples =Integer.parseInt (line.getOptionValue(MHSsampling));
         	System.out.println("sampling with metropolis hastings ");
+        }
+        if  (line.hasOption(MHSoutf)) {
+        	MHSoutFile =line.getOptionValue(MHSoutf);
+        	System.out.println("Got suffix of MHS outfut file :"+ MHSoutf+"MHSoutFILE: "+MHSoutFile);
         }
         
     }
