@@ -151,93 +151,93 @@ public class MainActiveModules {
 				e.printStackTrace();
 			}
 			
-			Node[] initialSubgraph=new Node[apfParams.getSampledSubnetSize()];//for Geweke diagnostics
-			for(int i = 1; i <= MHSsamples; i = i+1) {
-		         System.out.println("Starting to compute k-node subnetwork : " + i );
-		         
-		         System.out.println("SampledSubnetSize, getTBurnout: " + apfParams.getSampledSubnetSize() +", "+ apfParams.getTBurnout());
-		         MetropolisHastingsSampling MHSampling=new MetropolisHastingsSampling(inputNetwork, apfParams);
-		         System.out.println("Hey line 153 subragh # "+i);
-		         try{
-		         sampleKNodeSubnet = MHSampling.SampleknodeSubnet(apfParams.getSampledSubnetSize(),apfParams.getTBurnout(), inputNetwork, initialSubgraph);
-		         }
-		         catch (Exception e){
-		        	 e.printStackTrace();
-		        	 return;
-		        	 }
-		         System.out.println("Hey line 155");
-		         
-		         //TODO: delete? : writing file with #Neighbors for Geweke diagnostics
-		         if (fwMHS_N!=null){
-						try{ 
-							
-							 //printing number of nodes, that are neighbors of the network printed below:
-							fwMHS_N.write(sampleKNodeSubnet.neighborsSize+"\n");
-			
-							
-							fwMHS_N.flush();
-							
-							
-							
-						}
-						catch (IOException e){
-							e.printStackTrace();	
-						}
+			Node[] initialSubgraph=new Node[apfParams.getSampledSubnetSize()];//for Geweke diagnostics. TODO: make Geweke diagnostics an option 
+			System.out.println("SampledSubnetSize, TBurnout: " + apfParams.getSampledSubnetSize() +", "+ apfParams.getTBurnout());
+			Random rand = new Random();
+			try{
+				for(int i = 1; i <= MHSsamples; i = i+1) {
+					if ( (i % 100) == 1){
+						System.out.println("Computing subnetwork : " + i );
 					}
-		         
-		         //for Geweke diagnostics
-		         initialSubgraph=sampleKNodeSubnet.arraySubnet.clone();
-		        
-		         
-		         
-		         //writing header line for subnetwork
-		         if (fwMHS!=null){
-						try{ 
-							fwMHS.write("> Subnetwork number "+i+"\n");
-							 //printing number of nodes, that are neighbors of the network printed below:
-							fwMHS.write("#Neighbors: "+sampleKNodeSubnet.neighborsSize+"\n");
-							
-							fwMHS.flush();
-							
-							
-							
+			         
+			         MetropolisHastingsSampling MHSampling=new MetropolisHastingsSampling(inputNetwork, apfParams,rand);
+			        // System.out.println("Hey line 153 subragh # "+i);
+			         try{
+			         sampleKNodeSubnet = MHSampling.SampleknodeSubnet(apfParams.getSampledSubnetSize(),apfParams.getTBurnout(), inputNetwork, initialSubgraph);
+			         }
+			         catch (Exception e){
+			        	 e.printStackTrace();
+			        	 return;
+			        	 }
+			       //  System.out.println("Hey line 155");
+			         
+			         //TODO: delete? : writing file with #Neighbors for Geweke diagnostics
+			         if (fwMHS_N!=null){
+							try{ 
+								
+								 //printing number of nodes, that are neighbors of the network printed below:
+								fwMHS_N.write(sampleKNodeSubnet.neighborsSize+"\n");
+				
+								
+								fwMHS_N.flush();
+								
+								
+								
+							}
+							catch (IOException e){
+								e.printStackTrace();	
+							}
 						}
-						catch (IOException e){
-							e.printStackTrace();	
-						}
-					}
-		        
-		        
+			         
+			         //TODO: make option for Geweke diagnostics
+			        // initialSubgraph=sampleKNodeSubnet.arraySubnet.clone();
+			        
+			         
+			         
+			         //writing header line for subnetwork
+			         
+				        /* if (fwMHS!=null){
+								 
+									fwMHS.write("\nSubnetwork number "+i+"\n");
+									printing number of nodes, that are neighbors of the network printed below:
+									fwMHS.write("#Neighbors: "+sampleKNodeSubnet.neighborsSize+"\n"+">");
+									
+									fwMHS.flush();
+									
+									
+									
+								
+							}
+				        
+				        */
+				         
+			         for (Node node :sampleKNodeSubnet.arraySubnet){
+			        	// System.out.println("Hey node:"+node.getName() + node);
+			        	 
+			        	 
+							fwMHS.write(node.getName() + "\t");
+						
+			        	 
+			         
+			         
+						fwMHS.flush();
+					
+			         }
+			         fwMHS.write("\n");
 		         
-		         for (Node node :sampleKNodeSubnet.arraySubnet){
-		        	// System.out.println("Hey node:"+node.getName() + node);
-		        	 
-		        	 try {
-						fwMHS.write(node.getName() + "\n");
-					} catch (IOException e) {
+					
+			        
+				}
+				fwMHS.close();
+				fwMHS_N.close();
+				 } catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-		        	 
-		         }
-		         try {
-					fwMHS.flush();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
-		      }
-			try {
-				fwMHS.close();
-				fwMHS_N.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				
+			return;
 			}
-			
-			
-		return;
-		}
+		
 		//end of addition for sampling
 		if(!dataFile.isEmpty())
 		{
@@ -511,13 +511,13 @@ public class MainActiveModules {
                 .withDescription("Does Metropolis Hastings Sampling withs parameters indicated in jActive parameters file. Takes as argument the number of subnetworks to be computed")
                 .create(MHSsampling);
        //suffix of MHS output file 
-        String MHSoutf = "MHSoutf";
-        name = "MHSoutf";
-        Option MHSoutfOpt = OptionBuilder.withArgName(name)
+        String MHSf = "MHSf";
+        name = "MHSf";
+        Option MHSfOpt = OptionBuilder.withArgName(name)
                 .withLongOpt(name)
                 .hasArg()
                 .withDescription("Suffix of MHS output files")
-                .create(MHSoutf);
+                .create(MHSf);
         
         		
         		
@@ -536,7 +536,7 @@ public class MainActiveModules {
         options.addOption(sampleOpt);
         options.addOption(testOpt);
         options.addOption(MHSsamplingOpt);
-        options.addOption(MHSoutfOpt);
+        options.addOption(MHSfOpt);
         
 
         options.addOption(helpOpt);
@@ -583,11 +583,11 @@ public class MainActiveModules {
         }
         if  (line.hasOption(MHSsampling)) {
         	MHSsamples =Integer.parseInt (line.getOptionValue(MHSsampling));
-        	System.out.println("sampling with metropolis hastings ");
+        	System.out.println("Sampling with Metropolis Hastings Sampling.");
         }
-        if  (line.hasOption(MHSoutf)) {
-        	MHSoutFile =line.getOptionValue(MHSoutf);
-        	System.out.println("Got suffix of MHS outfut file :"+ MHSoutf+"MHSoutFILE: "+MHSoutFile);
+        if  (line.hasOption(MHSf)) {
+        	MHSoutFile =line.getOptionValue(MHSf);
+        	System.out.println("Got suffix of MHS output file :"+MHSoutFile);
         }
         
     }

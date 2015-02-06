@@ -7,8 +7,15 @@ import csplugins.jActiveModulesHeadless.networkUtils.Network;
 import csplugins.jActiveModulesHeadless.networkUtils.Node;
 import csplugins.jActiveModulesHeadless.tests.ScoreTests;
 
-
 	
+@SuppressWarnings("serial")
+class NotEnoughNeighborsException extends Exception{ 
+	  public NotEnoughNeighborsException(String message){
+	    super(message);
+	  }  
+	}
+
+
 public class MetropolisHastingsSampling {
 
 	Random rand;
@@ -28,7 +35,7 @@ public class MetropolisHastingsSampling {
 			}
 	
 	
-	public MetropolisHastingsSampling(Network Network, ActivePathFinderParameters apfParams) {
+	public MetropolisHastingsSampling(Network Network, ActivePathFinderParameters apfParams, Random rand) {
 		
 		//System.out.println("Hey  MetropolisHastingsSampling constructor");
 		this.apfParams = apfParams;
@@ -43,7 +50,7 @@ public class MetropolisHastingsSampling {
 		
 		network.generateNeighborList();
 		
-		rand = new Random();
+		this.rand = rand;
 		
 	}
 	/**
@@ -166,18 +173,18 @@ public class MetropolisHastingsSampling {
 		return;
 		
 	}
-	private Node whichNodeToAdd(@SuppressWarnings("rawtypes") BalancedOrderStatisticTree gNeighbors, Node[] arrayG){
+	private Node whichNodeToAdd(@SuppressWarnings("rawtypes") BalancedOrderStatisticTree gNeighbors, Node[] arrayG) throws NotEnoughNeighborsException {
 		
 		Node nodeToAdd=null;
 		boolean inG=true;
 		//System.out.println("gNeighbors before which node to add:" + gNeighbors.toString());
 		
 		if (gNeighbors.size()<=0){
-			//TODO:THROW EXCEPTION
-			System.out.println ("Error during initialisation of g: The graph g seems to not have any neighbors. "
-					+ "The counter of neighbors is equal to: "+gNeighbors.size()+ ". g is:");
-					arrayG.toString();
-			return null;
+			
+			throw new NotEnoughNeighborsException ("Exception during initialisation of g: The graph g seems to not have any neighbors. "
+					+ "The counter of neighbors is equal to: "+gNeighbors.size()+ ". g is:"+
+					arrayG.toString());
+			
 			}
 		else {
 			while (inG){
@@ -225,9 +232,15 @@ public class MetropolisHastingsSampling {
 			
 			
 			int nodeIndex = randInt(0, nodeList.size()-1);
+			
 			nodeToAdd=nodeList.get(nodeIndex);
 			
-			//System.out.println("seedNode:"+nodeToAdd);
+			
+			
+			//nodeToAdd=nodeList.get(16);
+			
+			System.out.println("seedNode:"+nodeToAdd+" name:"+nodeToAdd.getName()+" toString"+nodeToAdd.toString());
+			
 		}
 
 		//creating a first subgraph: we take  a random seednode , compute the neighbors of this graph, add neighbor+ compute its neighbors and so on until right quantity of nodes added to g.
@@ -251,10 +264,20 @@ public class MetropolisHastingsSampling {
 			//searching for next node to add
 			if (initialSubgraphIsGiven){
 				nodeToAdd=initialSubgraph[arrayGindex];
+				//System.out.println("NodeToAdd(initial graph given):"+nodeToAdd);
 			}
 			else {
 				if (!seedNode){
-					nodeToAdd=whichNodeToAdd(gNeighbors, arrayG);
+					try{
+						nodeToAdd=whichNodeToAdd(gNeighbors, arrayG);
+						}
+					catch (NotEnoughNeighborsException e){
+						System.out.println("NotEnoughNeighborsException handled: the component of the chosen seedNode had less or exactely k elements. We restarted with an other seednode." );
+						//TODO: how to ensure it won't restart over and over?
+						SampleknodeSubnet (k, t, network, initialSubgraph);	
+					}
+					
+					//System.out.println("NodeToAdd(initial graph not given):"+nodeToAdd);
 				}
 				else {
 					seedNode=false;//in the next while we will not be dealing with seedNode any more
@@ -288,7 +311,7 @@ public class MetropolisHastingsSampling {
 	
 	
 	
-	private subNetAndNeighSize SampleknodeSubnet (int k, int t, Network network, Node[] arrayG, Map<Node,Integer> nOccurCounter, @SuppressWarnings("rawtypes") BalancedOrderStatisticTree gNeighbors) throws Exception{
+	private subNetAndNeighSize SampleknodeSubnet  (int k, int t, Network network, Node[] arrayG, Map<Node,Integer> nOccurCounter, @SuppressWarnings("rawtypes") BalancedOrderStatisticTree gNeighbors) throws Exception, NotEnoughNeighborsException{
 		int numNeighborsOfOldG=	gNeighbors.size();
 		// starting the burnout counter:
 		ScoreTests ST=new ScoreTests(network);
@@ -302,6 +325,7 @@ public class MetropolisHastingsSampling {
 			while (!isConnected){
 				arrayGindex = randInt(0,k-1);
 				nodeToDel=arrayG[arrayGindex];
+				
 				nodeToAdd=whichNodeToAdd(gNeighbors, arrayG);
 				arrayG[arrayGindex]=nodeToAdd;
 				isConnected=ST.isConnected(arrayG);
@@ -330,10 +354,10 @@ public class MetropolisHastingsSampling {
 	       
 	        double alpha=Math.random();
 	       // System.out.println("alpha:"+alpha+" gsize:"+gNeighbors.size()+" oldGsize:"+ numNeighborsOfOldG+"gsize/oldGsize: "+(double)((double)gNeighbors.size()/(double)numNeighborsOfOldG));
-			if (alpha<(double)((double)gNeighbors.size()/(double)numNeighborsOfOldG) ){
+			if (alpha<(double)((double)numNeighborsOfOldG/(double) gNeighbors.size()) ){
 				
 				//System.out.println("g has changed");
-				numNeighborsOfOldG=gNeighbors.size();
+				//numNeighborsOfOldG=gNeighbors.size();
         		        	}
 	        else{
 	        	
@@ -343,6 +367,7 @@ public class MetropolisHastingsSampling {
         		
         		//deleting NodeToAdd
         		try{
+        			
         			deleteNode(nodeToAdd, gNeighbors, arrayG, nOccurCounter);
         		}
         		catch (Exception e){
