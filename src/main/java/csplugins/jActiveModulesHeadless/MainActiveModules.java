@@ -163,7 +163,7 @@ public class MainActiveModules {
 						System.out.println("Computing subnetwork : " + i );
 					}
 			         
-			         // System.out.println("Hey line 153 subragh # "+i);
+			         // System.out.println("Hey line 153 subgraph # "+i);
 			         
 			         sampleKNodeSubnet = MHSampling.SampleknodeSubnet(apfParams.getSampledSubnetSize(),apfParams.getTBurnout(), inputNetwork, initialSubgraph);
 			        
