@@ -9,5 +9,5 @@ AP.hubSize=300
 
 
 AP.sampledSubnetSize=3
-AP.tBurnout=2000
+AP.tBurnout=250000
 AP.numSampledSubnets=10000

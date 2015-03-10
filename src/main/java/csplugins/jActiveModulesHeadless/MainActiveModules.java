@@ -1,5 +1,5 @@
 package csplugins.jActiveModulesHeadless;
-
+import org.apache.commons.cli.*;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -8,7 +8,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import java.util.*;
 
-import org.apache.commons.cli.*;
+
 
 import csplugins.jActiveModulesHeadless.data.*;
 import csplugins.jActiveModulesHeadless.networkUtils.*;
@@ -147,46 +147,41 @@ public class MainActiveModules {
 				fwMHS = new FileWriter (MHSsamplesFile);
 				fwMHS_N = new FileWriter (MHSNeighborsofSamplesFile);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
+				return;
 			}
 			
 			Node[] initialSubgraph=new Node[apfParams.getSampledSubnetSize()];//for Geweke diagnostics. TODO: make Geweke diagnostics an option 
 			System.out.println("SampledSubnetSize, TBurnout: " + apfParams.getSampledSubnetSize() +", "+ apfParams.getTBurnout());
 			Random rand = new Random();
-			try{
+			try{ 
+				MetropolisHastingsSampling MHSampling=new MetropolisHastingsSampling(inputNetwork, apfParams,rand);
+		       
 				for(int i = 1; i <= MHSsamples; i = i+1) {
 					if ( (i % 100) == 1){
 						System.out.println("Computing subnetwork : " + i );
 					}
 			         
-			         MetropolisHastingsSampling MHSampling=new MetropolisHastingsSampling(inputNetwork, apfParams,rand);
-			        // System.out.println("Hey line 153 subragh # "+i);
-			         try{
+			         // System.out.println("Hey line 153 subragh # "+i);
+			         
 			         sampleKNodeSubnet = MHSampling.SampleknodeSubnet(apfParams.getSampledSubnetSize(),apfParams.getTBurnout(), inputNetwork, initialSubgraph);
-			         }
-			         catch (Exception e){
-			        	 e.printStackTrace();
-			        	 return;
-			        	 }
+			        
 			       //  System.out.println("Hey line 155");
 			         
 			         //TODO: delete? : writing file with #Neighbors for Geweke diagnostics
 			         if (fwMHS_N!=null){
-							try{ 
-								
+							
+			        	// System.out.println("writing file with #Neighbors for Geweke diagnostics");
 								 //printing number of nodes, that are neighbors of the network printed below:
-								fwMHS_N.write(sampleKNodeSubnet.neighborsSize+"\n");
+				
+			        	 fwMHS_N.write(sampleKNodeSubnet.neighborsSize+"\n");
 				
 								
 								fwMHS_N.flush();
 								
 								
-								
-							}
-							catch (IOException e){
-								e.printStackTrace();	
-							}
+							
 						}
 			         
 			         //TODO: make option for Geweke diagnostics
@@ -230,9 +225,10 @@ public class MainActiveModules {
 				}
 				fwMHS.close();
 				fwMHS_N.close();
-				 } catch (IOException e) {
+				 } catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						
 					}
 				
 			return;
