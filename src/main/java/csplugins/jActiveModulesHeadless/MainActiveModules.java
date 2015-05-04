@@ -210,7 +210,7 @@ public class MainActiveModules {
 			        	// System.out.println("Hey node:"+node.getName() + node);
 			        	 
 			        	 
-							fwMHS.write(node.getName() + "\t");
+							fwMHS.write(node.getName() + "\t"+ node.getSUID() + "\t");
 						
 			        	 
 			         

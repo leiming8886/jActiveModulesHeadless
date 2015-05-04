@@ -281,7 +281,7 @@ public class MetropolisHastingsSampling {
 
 		//creating a first subgraph: we take  a random seednode , compute the neighbors of this graph, add neighbor+ compute its neighbors and so on until right quantity of nodes added to g.
 		
-		/*TODO: deleted when debugging
+		/* on 9.03.2015: deleted when debugging
 		
 		
 		
