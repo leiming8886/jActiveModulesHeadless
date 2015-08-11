@@ -1,13 +1,15 @@
 AP.initialTemperature=1.0
-AP.anneal=true
+AP.anneal=false
 AP.quench=false
 AP.totalIterations=100000
-AP.maxDepth=2
+AP.maxDepth=50
 AP.regional=false
 AP.randomSeed=445454
 AP.hubSize=300
 
 
-AP.sampledSubnetSize=5
-AP.tBurnout=250000
-AP.numSampledSubnets=10000
+AP.sampled#SubnetSize=4
+AP.tBurn#In=250000
+AP.numSampled#Subnets=10000
+
+AP.sizeSubnets=5

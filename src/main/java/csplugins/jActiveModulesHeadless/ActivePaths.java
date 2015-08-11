@@ -117,11 +117,19 @@ public class ActivePaths  {
 
 		Vector<Component> activePathsVect= new Vector<Component>();
 
-		// run the path finding algorithm
+		/*// run the path finding algorithm
 		final ActivePathsFinder apf =
 			new ActivePathsFinder(expressionMap, attrNamesLength, network, apfParams, activePathsVect);
 		
 		apf.run();
+		*/
+		
+		// run the path finding cst size algorithm
+				final ActivePathsFinderConstantSize apf =
+					new ActivePathsFinderConstantSize(expressionMap, attrNamesLength, network, apfParams, activePathsVect);
+				
+				apf.run();
+		
 		//ActivePathsTaskFactory factory = new ActivePathsTaskFactory(apf);
 		//ServicesUtil.synchronousTaskManagerServiceRef.execute(factory.createTaskIterator());
 				

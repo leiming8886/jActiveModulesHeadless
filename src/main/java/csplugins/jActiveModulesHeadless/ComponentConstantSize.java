@@ -21,14 +21,14 @@ import java.util.ArrayList;
 //import cytoscape.data.Semantics;
 //-----------------------------------------------------------------------------------
 /**
- * This object represent a set of connected nodes that we wish to score for significance.
+ * This object represent a set of connected nodes that we wish to score for signficance.
  * Although at no point in this class is it verified that the nodes passed into the 
  * constructors are actually connected. One important thing to note about this class
  * is that it only recalculates the score if its state has changed. If you make some change
  * to this class where the state changes, make sure to set scored=false (see code for
  * example of this situation. It implements comparable, it's sexy like that.
  */
-public class Component implements Comparable{
+public class ComponentConstantSize implements Comparable{
   /**
    *The score of this component
    */
@@ -119,7 +119,7 @@ public class Component implements Comparable{
   /**
    * Creates an empty components
    */
-  public Component ()
+  public ComponentConstantSize ()
   {
     scored = true;
     score = Integer.MIN_VALUE;
@@ -143,7 +143,7 @@ public class Component implements Comparable{
    * @param nComponents the neighboring components
    * @param current the node which is next to all these components
    */
-  public Component(Set nComponents, Node current){
+  public ComponentConstantSize(Set nComponents, Node current){
     nodes = new Vector();
     contains = new HashSet();
     scored = false;
@@ -245,7 +245,7 @@ public class Component implements Comparable{
    * Build a new component containing all the nodes in this list
    * @param nlist Nodes to constitute the new component
    */
-  public Component(List nlist){
+  public ComponentConstantSize(List nlist){
     scored = false;
     nodes = new Vector(nlist);
     zSums = new double [attrNamesLength];
@@ -429,17 +429,16 @@ public class Component implements Comparable{
 
   /**
    *Returns the nodes which are currently a member of this component,
-   *not guaranteed to be non-null
+   *not guarenteed to be non-null
    * @return Vector of Nodes
    */
   public Vector getNodes(){
     return nodes;
   }
-  
- 
+
   /**
    * Determines the corrected score for this component. This function will return
-   * the corrected simple score for this component. If monte-carlo correction is not
+   * the corrected simple score for this component. If Monte-Carlo correction is not
    * desired, this is equivalent to the simple score. The score is set to a global
    * class variable so that it doesn't need to be recalculated each time.
    * @return The corrected score
@@ -827,7 +826,7 @@ public class Component implements Comparable{
 	}
 	
 	// For test only -- test the inner class OpenIntDoubleHashMap
-	  public Component(double d){
+	  public ComponentConstantSize(double d){
 			IntArrayList intArrayList = new IntArrayList(3);
 			
 			OpenIntDoubleHashMap map = new OpenIntDoubleHashMap(3);

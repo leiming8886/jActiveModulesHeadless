@@ -26,7 +26,7 @@ package csplugins.jActiveModulesHeadless.networkUtils;
 
 
 
-public class Node implements Comparable{
+public class Node implements Comparable<Node>{
 	
 	
 	private Network nestedNet;
@@ -107,23 +107,40 @@ public class Node implements Comparable{
 		
 	}
 	
-	public int compareTo(Object other){
-	    long this_suid,other_suid;
-	    this_suid = this.suid;
-	    other_suid = ((Node)other).suid;
-	    if(this_suid < other_suid){
-	      return 1;
-	    }
-	    else if(this_suid > other_suid){
-	      return -1;
-	    }
-	    else{
-	      return 0;
-	    }
-		
-	  }
+//	public int compareTo(Object other){
+//	    long this_suid,other_suid;
+//	    this_suid = this.suid;
+//	    other_suid = ((Node)other).suid;
+//	    if(this_suid < other_suid){
+//	      return 1;
+//	    }
+//	    else if(this_suid > other_suid){
+//	      return -1;
+//	    }
+//	    else{
+//	      return 0;
+//	    }
+//		
+//	  }
 	
 	public String toString() {
 		return "Node suid: " + getSUID();
+	}
+
+	@Override
+	public int compareTo(Node o) {
+		 long this_suid,other_suid;
+		    this_suid = this.suid;
+		    other_suid = ((Node)o).suid;
+		    if(this_suid < other_suid){
+		      return 1;
+		    }
+		    else if(this_suid > other_suid){
+		      return -1;
+		    }
+		    else{
+		      return 0;
+		    }
+			
 	}
 }

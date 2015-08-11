@@ -153,7 +153,7 @@ public class MainActiveModules {
 			}
 			
 			Node[] initialSubgraph=new Node[apfParams.getSampledSubnetSize()];//for Geweke diagnostics. TODO: make Geweke diagnostics an option 
-			System.out.println("SampledSubnetSize, TBurnout: " + apfParams.getSampledSubnetSize() +", "+ apfParams.getTBurnout());
+			System.out.println("SampledSubnetSize, TBurnIn: " + apfParams.getSampledSubnetSize() +", "+ apfParams.getTBurnIn());
 			Random rand = new Random();
 			try{ 
 				MetropolisHastingsSampling MHSampling=new MetropolisHastingsSampling(inputNetwork, apfParams,rand);
@@ -165,7 +165,7 @@ public class MainActiveModules {
 			         
 			         // System.out.println("Hey line 153 subgraph # "+i);
 			         
-			         sampleKNodeSubnet = MHSampling.SampleknodeSubnet(apfParams.getSampledSubnetSize(),apfParams.getTBurnout(), inputNetwork, initialSubgraph);
+			         sampleKNodeSubnet = MHSampling.SampleknodeSubnet(apfParams.getSampledSubnetSize(),apfParams.getTBurnIn(), inputNetwork, initialSubgraph);
 			        
 			       //  System.out.println("Hey line 155");
 			         
@@ -331,7 +331,7 @@ public class MainActiveModules {
 
 		System.out.println("Input network with " + inputNetwork.getNodeCount() + " nodes and " + inputNetwork.getEdgeCount() + " edges");
 		activePaths = new ActivePaths(inputNetwork, apfParams);
-
+//the actual command to run the search?
 		activePaths.run();
 
 		Network[] subnetworks = activePaths.createSubnetworks();

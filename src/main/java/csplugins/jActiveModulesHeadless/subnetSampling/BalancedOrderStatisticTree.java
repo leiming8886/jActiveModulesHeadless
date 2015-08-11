@@ -1,18 +1,43 @@
 package csplugins.jActiveModulesHeadless.subnetSampling;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.AbstractQueue;
 import java.util.NoSuchElementException;
 
 public class BalancedOrderStatisticTree<T extends Comparable<T>> extends AbstractQueue<T> {
+	
+	
+	protected Comparator<T> c;
+	public BalancedOrderStatisticTree(){
+		super();
+		//creating an internal comparison function compare that I will use each time I want to use compareTo method. It enables me to have a second constructor where I can define in my own way what exactely I compare(used in class BalancedOrderStatisticTreeOrderedByPval)
+		c=new Comparator<T>(){
+			@Override
+			public int compare(T o1, T o2) {
+				return o1.compareTo(o2);
+			}
+		};
+		
+	}
+	
+	
+	public BalancedOrderStatisticTree(Comparator<T> comparator){
+		super();
+		
+		c=comparator;
+		
+	}
+	
+	
 	/**
 	 * TNodes of the tree.
 	 */
-	private class TNode {
+	protected class TNode {
 		/**
 		 * The value at this TNode.
 		 */
-		private T val;
+		protected T val;
 		/**
 		 * Get the value at this TNode.
 		 * @return the value at this TNode.
@@ -252,7 +277,7 @@ public class BalancedOrderStatisticTree<T extends Comparable<T>> extends Abstrac
 		 *   whether to use the right-most insertion point
 		 */
 		private void insert(TNode n, boolean useRight) {
-			int cmp = n.value().compareTo(value());
+			int cmp = c.compare(n.value(), value());
 			if (cmp == 0) {
 				if (useRight) {
 					cmp = 1;
@@ -364,7 +389,7 @@ public class BalancedOrderStatisticTree<T extends Comparable<T>> extends Abstrac
 		 * @return the subTNode if one is found, or null
 		 */
 		public TNode find(T val, boolean useRight) {
-			int cmp = value().compareTo(val);
+			int cmp = c.compare(value(), val);
 			if (cmp < 0 || (cmp == 0 && useRight)) { // too early; seach right side
 				TNode res = null;
 				if (rChild != null) res = rChild.find(val, useRight);
@@ -448,12 +473,12 @@ public class BalancedOrderStatisticTree<T extends Comparable<T>> extends Abstrac
 		} else {
 			if (useRight) {
 				root.insertRight(n);
-				if (head.value().compareTo(item) > 0) head = n;
-				if (tail.value().compareTo(item) <= 0) tail = n;
+				if (c.compare(head.value(),item)> 0) head = n;
+				if (c.compare(tail.value(),item) <= 0) tail = n;
 			} else {
 				root.insertLeft(n);
-				if (head.value().compareTo(item) >= 0) head = n;
-				if (tail.value().compareTo(item) < 0) tail = n;
+				if (c.compare(head.value(),item) >= 0) head = n;
+				if (c.compare(tail.value(),item) < 0) tail = n;
 			}
 		}
 		assert root.verify();
@@ -484,7 +509,7 @@ public class BalancedOrderStatisticTree<T extends Comparable<T>> extends Abstrac
 		if (root == null) return false;
 		TNode n = root.find(item, useRight);
 		if (n == null) return false;
-		assert n.value().compareTo(item) == 0;
+		assert c.compare(n.value(), item) == 0;
 		return removeTNode(n);
 	}
 	public boolean removeLeft(T item) {
@@ -624,7 +649,7 @@ public class BalancedOrderStatisticTree<T extends Comparable<T>> extends Abstrac
 		if (root == null) return -1;
 		TNode n = root.find(item, useRight);
 		if (n == null) return -1;
-		assert n.value().compareTo(item) == 0;
+		assert c.compare(n.value(), item) == 0;
 		return n.rank();
 	}
 	public int rankLeft(T item) {

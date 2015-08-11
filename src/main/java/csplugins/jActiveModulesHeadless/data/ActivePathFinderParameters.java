@@ -62,11 +62,14 @@ public class ActivePathFinderParameters {
     	
     List<Boolean> switchSigs = new ArrayList<Boolean>();
     List<String> scalingMethods = new ArrayList<String>();
-    private Network network;
+   private Network network;
     //sampling params:
     int sampledSubnetSize = 0;
-    int tBurnout = 0;
+    int tBurnIn = 0;
     int numSampledSubnets = 0;
+    
+    //parameters of greedy search with constant size
+   int sizeSubnets = 1;
     
 	// ---------------------------------------------------------------------------------------
     public ActivePathFinderParameters(String propFileName){
@@ -171,11 +174,14 @@ public class ActivePathFinderParameters {
 		else if (name.endsWith("sampledSubnetSize")){
 			sampledSubnetSize = Integer.valueOf(property);
 		}
-		else if (name.endsWith("tBurnout")){
-			tBurnout = Integer.valueOf(property);
+		else if (name.endsWith("tBurnIn")){
+			tBurnIn = Integer.valueOf(property);
 		}
 		else if (name.endsWith("numSampledSubnets")){
 			numSampledSubnets = Integer.valueOf(property);
+		}
+		else if (name.endsWith("sizeSubnets")){
+			sizeSubnets = Integer.valueOf(property);
 		}
 		else{
 		    System.out.println("Unrecognized option "+name);
@@ -240,10 +246,13 @@ public class ActivePathFinderParameters {
 		this.randomizeExpression = oldAPFP.getRandomizeExpression();
 		this.randomIterations = oldAPFP.getRandomIterations();
 		this.overlapThreshold = oldAPFP.getOverlapThreshold();
+		
 		this.sampledSubnetSize = oldAPFP.getSampledSubnetSize();
-		this.tBurnout = oldAPFP.getTBurnout();
+		this.tBurnIn = oldAPFP.getTBurnIn();
 		this.numSampledSubnets = oldAPFP.getNumSampledSubnets();
 		setSizeExpressionAttributes(oldAPFP.getSizeExpressionAttributes());
+		
+		this.sizeSubnets = oldAPFP.getSizeSubnets();
 		
 	} // copy ctor
 
@@ -480,11 +489,11 @@ public class ActivePathFinderParameters {
 	public void setSampledSubnetSize(int sampledSubnetSize) {
 		this.sampledSubnetSize = sampledSubnetSize;
 	}
-	public int getTBurnout() {
-		return tBurnout;
+	public int getTBurnIn() {
+		return tBurnIn;
 	}
-	public void setTBurnout(int tBurnout) {
-		this.tBurnout = tBurnout;
+	public void setTBurnIn(int tBurnIn) {
+		this.tBurnIn = tBurnIn;
 	}
 	public int getNumSampledSubnets() {
 		return numSampledSubnets;
@@ -492,7 +501,13 @@ public class ActivePathFinderParameters {
 	public void setNumSampledSubnets(int numSampledSubnets) {
 		this.numSampledSubnets = numSampledSubnets;
 	}
-
+	public int getSizeSubnets() {
+		return sizeSubnets;
+	}
+	public void setSizeSubnets(int sizeSubnets) {
+		this.sizeSubnets = sizeSubnets;
+	}
+	
 	public int getSizeExpressionAttributes() {
 		return sizeExpressionAttrs;
 	}
@@ -545,8 +560,9 @@ public class ActivePathFinderParameters {
 		sb.append("              max threads: " + maxThreads + "\n");
 		sb.append("        overlap threshold: " + overlapThreshold + "\n");
 		sb.append("        sampling parameter, size of sampled subnetworks: " + sampledSubnetSize + "\n");
-		sb.append("        sampling parameter, burnout time: " + tBurnout + "\n");
+		sb.append("        sampling parameter, BurnIn time: " + tBurnIn + "\n");
 		sb.append("        sampling parameter, number of sampled subnetworks: " + numSampledSubnets + "\n");
+		sb.append("        size of the subnetworks we are exploring: " + sizeSubnets + "\n");
 		return sb.toString();
 
 	} // toString
