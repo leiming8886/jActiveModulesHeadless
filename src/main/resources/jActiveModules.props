@@ -7,11 +7,5 @@ AP.regional=false
 AP.randomSeed=445454
 AP.hubSize=300
 
-
-AP.sampled#SubnetSize=4
-AP.tBurn#In=250000
-AP.numSampled#Subnets=10000
-
 AP.subnetworkSize=3
-
 AP.samplingIterationSize=10
