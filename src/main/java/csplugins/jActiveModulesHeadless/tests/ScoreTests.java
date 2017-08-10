@@ -133,14 +133,14 @@ public class ScoreTests  {
 				
 		}
 		else
-		{ System.out.println("hiScoreTests1");
+		{ //System.out.println("hiScoreTests1");
 			subnetworks = findSubnetworks(1);//iryna:3-->1
-            System.out.println("hiScoreTests3"+size);
+           // System.out.println("hiScoreTests2. Size: "+size);
 			
             for(int i = 2;i<=size;i++)//iryna:4-->2
-            {  System.out.println("hiScoreTests");
+            {  //System.out.println("hiScoreTests");
                 subnetworks = getNextLevelSubnetworks(subnetworks);
-                System.out.println("hiScoreTests.Number of Subnetworks of size " + i + ": " + subnetworks.size());
+                System.out.println("Number of Subnetworks of size " + i + ": " + subnetworks.size());
             }
 		
 		}
